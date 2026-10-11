@@ -6,7 +6,7 @@ if not exist .env (
   echo Ho creato il file .env: compila CLIENT_SECRET e BOT_TOKEN, salva e chiudi il Blocco note.
   notepad .env
 )
-if not exist node_modules call npm install
+call npm install --no-audit --no-fund
 start "" http://localhost:3000
 call npm start
 pause

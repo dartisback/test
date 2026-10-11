@@ -6,6 +6,7 @@ const express = require('express');
 const cookieSession = require('cookie-session');
 const store = require('./lib/store');
 const discord = require('./lib/discord');
+const { startBot } = require('./lib/gateway');
 
 const PORT = Number(process.env.PORT) || 3000;
 const ROLES = {
@@ -131,7 +132,7 @@ app.get(
       };
       store.upsertUser({ id: user.id, username: user.username, role });
       req.session.user = user;
-      res.redirect('/dashboard');
+      res.redirect('/');
     } catch (e) {
       console.error('[auth]', e.message);
       res.redirect('/?error=auth_failed');
@@ -148,7 +149,7 @@ if (DEV_LOGIN) {
     const user = { id: `dev-${role}`, username: `Dev ${role}`, avatar: null, role, checkedAt: Date.now(), dev: true };
     store.upsertUser({ id: user.id, username: user.username, role });
     req.session.user = user;
-    res.redirect('/dashboard');
+    res.redirect('/');
   });
 }
 
@@ -342,4 +343,5 @@ app.listen(PORT, () => {
   if (!process.env.DISCORD_CLIENT_ID || !process.env.DISCORD_CLIENT_SECRET)
     console.warn('⚠  DISCORD_CLIENT_ID / DISCORD_CLIENT_SECRET mancanti nel .env: il login Discord non funzionerà.');
   if (!process.env.DISCORD_BOT_TOKEN) console.warn('⚠  DISCORD_BOT_TOKEN mancante: impossibile leggere i ruoli.');
+  startBot(process.env.DISCORD_BOT_TOKEN);
 });

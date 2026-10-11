@@ -21,6 +21,14 @@
     <div class="status"><i class="dot"></i><span>servizi offline</span></div>
     <button class="icon-btn" data-theme-toggle title="Tema">☾</button>
     <a id="navCta" href="/auth/discord" class="btn btn-primary btn-sm">ACCEDI CON DISCORD →</a>
+    <div class="usermenu" id="userMenu" hidden>
+      <button class="userchip" id="userChip" aria-haspopup="true" aria-expanded="false"><span id="uAvatar"></span><span id="uName"></span><span class="badge" id="uRole"></span><span style="color:var(--muted)">▾</span></button>
+      <div class="menu" id="menu">
+        <a href="/dashboard#licenza">🔑 Attiva licenza</a>
+        <a href="/dashboard">⚙ Dashboard</a>
+        <button id="menuLogout">⎋ Esci</button>
+      </div>
+    </div>
   </div>
 </nav></div></div>
 
@@ -30,7 +38,7 @@
     <h1>Fai crescere il tuo server FiveM in 5 minuti con <span class="accent">FLUX</span></h1>
     <p class="lead"><strong>Popolazione istantanea, gestita da un pannello.</strong><br>Integrazione txAdmin, nomi personalizzati e attività 24/7 per attirare giocatori veri.</p>
     <div class="cta-row">
-      <a href="/auth/discord" class="btn btn-primary">Inizia ora →</a>
+      <a href="/auth/discord" class="btn btn-primary" data-cta>Inizia ora →</a>
       <a href="#live" class="btn btn-ghost">▶ Demo live</a>
     </div>
     <div class="stats">
@@ -86,16 +94,16 @@
         <div class="card mini"><div class="ico g6">⚡</div><div><b>Prossimo poll</b><small>i comandi si applicano da soli</small></div><div class="val">~5s</div></div>
       </div>
     </div>
-    <div class="cta-row" style="margin-bottom:0"><a href="/dashboard" class="btn btn-ghost">Leggi la guida</a><a href="/auth/discord" class="btn btn-primary">Apri DASHBOARD</a></div>
+    <div class="cta-row" style="margin-bottom:0"><a href="/dashboard" class="btn btn-ghost">Leggi la guida</a><a href="/auth/discord" class="btn btn-primary" data-cta-dash>Apri DASHBOARD</a></div>
   </div></section>
 
   <section class="block" id="pricing"><div class="container">
     <div class="sec-head"><div class="ghost">PIANI</div><h2>Scegli la <span class="accent">licenza</span> giusta</h2>
       <p>Le licenze vengono generate dall'owner e riscattate dal tuo account Discord. Contatta lo staff nel server per ottenerne una.</p></div>
     <div class="grid-3">
-      <div class="card price-card hover"><h3>Day</h3><p>Per provare il servizio</p><ul><li>Validità 24 ore dal riscatto</li><li>Fino a 64 bot</li><li>Sync txAdmin</li><li>Nomi personalizzati</li></ul><a href="/auth/discord" class="btn btn-ghost" style="width:100%;justify-content:center">Accedi per riscattare</a></div>
-      <div class="card price-card featured hover"><span class="tag">PIÙ SCELTO</span><h3>Week</h3><p>Per eventi e lanci</p><ul><li>Validità 7 giorni dal riscatto</li><li>Fino a 64 bot</li><li>Sync txAdmin</li><li>Supporto prioritario</li></ul><a href="/auth/discord" class="btn btn-primary" style="width:100%;justify-content:center">Accedi per riscattare</a></div>
-      <div class="card price-card hover"><h3>Lifetime</h3><p>Una volta sola, per sempre</p><ul><li>Nessuna scadenza</li><li>Fino a 64 bot</li><li>Tutti gli aggiornamenti</li><li>Supporto 24/7</li></ul><a href="/auth/discord" class="btn btn-ghost" style="width:100%;justify-content:center">Accedi per riscattare</a></div>
+      <div class="card price-card hover"><h3>Day</h3><p>Per provare il servizio</p><ul><li>Validità 24 ore dal riscatto</li><li>Fino a 64 bot</li><li>Sync txAdmin</li><li>Nomi personalizzati</li></ul><a href="/auth/discord" class="btn btn-ghost" data-cta-redeem style="width:100%;justify-content:center">Accedi per riscattare</a></div>
+      <div class="card price-card featured hover"><span class="tag">PIÙ SCELTO</span><h3>Week</h3><p>Per eventi e lanci</p><ul><li>Validità 7 giorni dal riscatto</li><li>Fino a 64 bot</li><li>Sync txAdmin</li><li>Supporto prioritario</li></ul><a href="/auth/discord" class="btn btn-primary" data-cta-redeem style="width:100%;justify-content:center">Accedi per riscattare</a></div>
+      <div class="card price-card hover"><h3>Lifetime</h3><p>Una volta sola, per sempre</p><ul><li>Nessuna scadenza</li><li>Fino a 64 bot</li><li>Tutti gli aggiornamenti</li><li>Supporto 24/7</li></ul><a href="/auth/discord" class="btn btn-ghost" data-cta-redeem style="width:100%;justify-content:center">Accedi per riscattare</a></div>
     </div>
   </div></section>
 
@@ -131,7 +139,23 @@
   if (e) toast(errs[e] || 'Errore di login', true);
 
   api('/api/me').then((r) => {
-    if (r.user) { const a = document.getElementById('navCta'); a.href = '/dashboard'; a.textContent = 'DASHBOARD →'; }
+    if (!r.user) return;
+    const u = r.user;
+    document.getElementById('navCta').hidden = true;
+    document.getElementById('userMenu').hidden = false;
+    document.getElementById('uName').textContent = u.username;
+    const rb = document.getElementById('uRole'); rb.textContent = u.role; rb.className = 'badge ' + u.role;
+    document.getElementById('uAvatar').innerHTML = u.avatar
+      ? `<img class="avatar" src="${esc(u.avatar)}" alt="">`
+      : `<div class="avatar avatar-ph">${esc((u.username[0] || '?').toUpperCase())}</div>`;
+    // i pulsanti della home portano all'attivazione licenza
+    document.querySelectorAll('[data-cta]').forEach((a) => { a.href = '/dashboard#licenza'; a.textContent = 'Attiva licenza →'; });
+    document.querySelectorAll('[data-cta-redeem]').forEach((a) => { a.href = '/dashboard#licenza'; a.textContent = 'Attiva licenza'; });
+    document.querySelectorAll('[data-cta-dash]').forEach((a) => { a.href = '/dashboard'; });
+    const chip = document.getElementById('userChip'), menu = document.getElementById('menu');
+    chip.onclick = (e) => { e.stopPropagation(); const o = menu.classList.toggle('open'); chip.setAttribute('aria-expanded', o); };
+    document.addEventListener('click', () => menu.classList.remove('open'));
+    document.getElementById('menuLogout').onclick = async () => { await api('/auth/logout', { method: 'POST' }); location.reload(); };
   }).catch(() => {});
 
   // console demo animata

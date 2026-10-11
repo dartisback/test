@@ -17,7 +17,9 @@ npm start                # http://localhost:3000
    - aggiungi il redirect: `http://localhost:3000/auth/discord/callback`
 2. **Bot** → copia il token in `DISCORD_BOT_TOKEN` e attiva **Server Members Intent**.
    Il bot deve essere nel server (`DISCORD_GUILD_ID`) per leggere i ruoli.
-3. `.env` è in `.gitignore`: **non committarlo mai**.
+3. All'avvio del sito il bot si collega al gateway Discord e risulta **online** nel server
+   (se vedi `❌ Bot Discord fermato` nel terminale, il token è sbagliato).
+4. `.env` è in `.gitignore`: **non committarlo mai**.
 
 ## Ruoli
 

@@ -25,6 +25,11 @@ async function boot() {
   $('admin').hidden = me.role !== 'owner';
   if (me.role === 'owner') loadAdmin();
   await refresh();
+  if (location.hash === '#licenza') {
+    $('licCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    $('licCard').style.boxShadow = '0 0 50px rgba(168,85,247,.55)';
+    ($('redeemKey') || $('redeemKey2'))?.focus();
+  }
   setInterval(refresh, 4000);
 }
 
@@ -40,16 +45,23 @@ async function refresh() {
 }
 
 function renderLicense(lic, all) {
+  // il refresh ogni 4s non deve cancellare quello che l'utente sta scrivendo
+  const act = document.activeElement;
+  const saved = act?.id?.startsWith('redeemKey') ? { id: act.id, v: act.value, s: act.selectionStart } : null;
+  renderLicenseHtml(lic, all);
+  if (saved && $(saved.id)) { $(saved.id).value = saved.v; $(saved.id).focus(); $(saved.id).setSelectionRange(saved.s, saved.s); }
+}
+
+function renderLicenseHtml(lic, all) {
   if (!lic) {
     $('licCard').innerHTML = `
       <div class="sect-title" style="font-size:18px"><i></i>Nessuna licenza attiva</div>
       <p class="sub" style="margin-top:8px">${all.length ? 'Le tue licenze sono scadute.' : 'Inserisci una chiave ricevuta dall\'owner per attivare il servizio.'}</p>
       <div class="field"><input class="input mono" id="redeemKey" placeholder="FLUX-XXXX-XXXX-XXXX-XXXX"><button class="btn btn-primary" id="redeemBtn">Riscatta</button></div>`;
-    $('redeemBtn').onclick = redeem;
-    $('redeemKey').onkeydown = (e) => e.key === 'Enter' && redeem();
+    $('redeemBtn').onclick = () => redeem();
+    $('redeemKey').onkeydown = (e) => { if (e.key === 'Enter') redeem(); };
     return;
   }
-  const keep = document.activeElement?.id === 'redeemKey2' ? $('redeemKey2').value : '';
   $('licCard').innerHTML = `
     <div class="row" style="justify-content:space-between">
       <div class="sect-title" style="font-size:18px"><i></i>La tua licenza ${lic.staffKey ? '<span class="badge staff">key staff</span>' : ''}</div>
@@ -63,7 +75,7 @@ function renderLicense(lic, all) {
       <div><b>${lic.pending}</b><span>Comandi in coda</span></div>
     </div>
     <div class="field-note" style="margin-top:14px">Endpoint per la risorsa FiveM: <span class="mono">POST ${location.origin}/api/fivem/poll</span> con header <span class="mono">x-license</span>.</div>
-    <div class="field"><input class="input mono" id="redeemKey2" placeholder="Hai un'altra chiave? Riscattala qui" value="${esc(keep)}"><button class="btn btn-ghost" id="redeemBtn2">Riscatta</button></div>`;
+    <div class="field"><input class="input mono" id="redeemKey2" placeholder="Hai un'altra chiave? Riscattala qui"><button class="btn btn-ghost" id="redeemBtn2">Riscatta</button></div>`;
   $('keybox').onclick = () => navigator.clipboard?.writeText(lic.key).then(() => toast('Chiave copiata'));
   $('redeemBtn2').onclick = () => redeem($('redeemKey2').value);
 }

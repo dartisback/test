@@ -230,3 +230,15 @@ select.input { appearance: none; }
   .banner { padding: 28px; } .field { flex-wrap: wrap; }
 }
 select.input, select.input option { background: var(--card-2); color: var(--text); }
+
+/* menu utente (home) */
+.usermenu { position: relative; }
+.usermenu[hidden], #navCta[hidden] { display: none; }
+.userchip { display: flex; align-items: center; gap: 10px; padding: 4px 12px 4px 4px; border-radius: 999px; background: var(--card-2); border: 1px solid var(--line); font-weight: 600; font-size: 14px; }
+.userchip:hover { border-color: var(--p); box-shadow: var(--glow); }
+.userchip .avatar { width: 30px; height: 30px; }
+.menu { position: absolute; right: 0; top: calc(100% + 10px); min-width: 210px; padding: 8px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 10px 40px rgba(0,0,0,.5), var(--glow); display: none; flex-direction: column; gap: 2px; }
+.menu.open { display: flex; }
+.menu a, .menu button { text-align: left; padding: 10px 12px; border-radius: 10px; font-size: 14px; font-weight: 500; }
+.menu a:hover, .menu button:hover { background: rgba(168, 85, 247, 0.14); color: var(--p-3); }
+@media (max-width: 600px) { .userchip #uName { display: none; } }
