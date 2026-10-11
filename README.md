@@ -66,3 +66,14 @@ Le risposte sono visibili solo a chi esegue il comando. Per registrarli il bot d
 `https://discord.com/oauth2/authorize?client_id=<CLIENT_ID>&scope=bot%20applications.commands&permissions=0`
 
 Sito e bot condividono `data/db.json` (devono girare sulla stessa macchina).
+
+## Aggiornamenti (senza ZIP)
+
+Una sola volta, clona il repo (serve [Git](https://git-scm.com)):
+
+```bash
+git clone -b claude/flux-bot-ita-website-eg1qbn https://github.com/dartisback/test.git flux-bot
+```
+
+Copia dentro la nuova cartella il tuo file `.env` (e `data/db.json` se vuoi tenere le licenze già create).
+Da quel momento, per avere le ultime modifiche basta fare doppio clic su `aggiorna.bat`.
