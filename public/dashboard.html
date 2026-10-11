@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard — FLUX BOT ITA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="nav-wrap"><div class="container"><nav class="nav">
+  <a href="/" class="brand"><span class="logo" data-logo></span>FLUX BOT ITA</a>
+  <div class="nav-right">
+    <div class="status"><i class="dot"></i><span>servizi offline</span></div>
+    <button class="icon-btn" data-theme-toggle title="Tema">☾</button>
+    <span id="roleBadge" class="badge"></span>
+    <span id="userName" style="font-weight:600;font-size:14px"></span>
+    <span id="avatarSlot"></span>
+    <button class="btn btn-ghost btn-sm" id="logout">Esci</button>
+  </div>
+</nav></div></div>
+
+<main class="container dash">
+  <div><h1>Dashboard</h1><p class="sub">Gestisci licenza e fake player del tuo server FiveM.</p></div>
+
+  <!-- licenza -->
+  <section class="card" id="licCard"></section>
+
+  <!-- controlli -->
+  <section id="controls" hidden>
+    <div class="sect-title"><i></i>Controlli server</div>
+    <p class="hint">i comandi vengono messi in coda — il server li esegue al prossimo poll (~5s)</p>
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><div class="ico g1">＋</div><h3>Aggiungi bot</h3></div>
+        <p>Riempi il server all'istante. Compaiono in ~5 secondi.</p>
+        <div class="field"><input class="input" id="addCount" type="number" min="1" value="5"><button class="btn btn-primary" id="addBtn">Aggiungi</button></div>
+        <div class="field-note" id="botCount"></div></div>
+      <div class="card"><div class="card-head"><div class="ico g3">－</div><h3>Rimuovi uno</h3></div>
+        <p>Espelli un singolo bot dal suo ID numerico.</p>
+        <div class="field"><input class="input" id="rmId" type="number" placeholder="100001"><button class="btn btn-ghost" id="rmBtn">Rimuovi</button></div></div>
+      <div class="card"><div class="card-head"><div class="ico g5">🗑</div><h3>Rimuovi tutti</h3></div>
+        <p>Svuota il server da ogni fake player in un colpo solo.</p>
+        <div class="field"><button class="btn btn-danger" id="rmAllBtn">Rimuovi tutti i bot</button></div></div>
+      <div class="card"><div class="card-head"><div class="ico g6">✎</div><h3>Nomi personalizzati</h3></div>
+        <p>Nomi separati da virgola — si mimetizzano con i giocatori reali.</p>
+        <div class="field"><input class="input" id="names" placeholder="Marco_V, LucaRP, xXStefanoXx"><button class="btn btn-ghost" id="genBtn">Genera</button><button class="btn btn-primary" id="applyBtn">Applica</button></div></div>
+    </div>
+    <div class="grid-2" style="margin-top:18px">
+      <div class="card"><div class="sect-title" style="font-size:16px"><i></i>Bot attivi</div><div class="chips" id="botList"></div></div>
+      <div class="card"><div class="sect-title" style="font-size:16px"><i></i>Attività</div><div class="log" id="log"></div></div>
+    </div>
+  </section>
+
+  <!-- admin -->
+  <section id="admin" hidden>
+    <div class="sect-title"><i></i>Gestione licenze <span class="badge owner">owner</span></div>
+    <p class="hint">crea o elimina licenze day / week / lifetime — la durata parte dal riscatto</p>
+    <div class="card">
+      <div class="field" style="margin-top:0">
+        <select class="input" id="newType" style="max-width:190px"><option value="day">Day (24h)</option><option value="week">Week (7 giorni)</option><option value="lifetime">Lifetime</option></select>
+        <input class="input" id="newCount" type="number" min="1" max="50" value="1" style="max-width:100px" title="Quantità">
+        <input class="input" id="newNote" placeholder="Nota (opzionale)" maxlength="80">
+        <button class="btn btn-primary" id="createBtn">Crea licenza</button>
+      </div>
+      <div id="createdBox" class="field-note"></div>
+      <div class="table-wrap" style="margin-top:18px"><table>
+        <thead><tr><th>Chiave</th><th>Tipo</th><th>Stato</th><th>Riscattata da</th><th>Scadenza</th><th>Nota</th><th></th></tr></thead>
+        <tbody id="licRows"></tbody></table></div>
+    </div>
+  </section>
+</main>
+
+<script src="/js/common.js"></script>
+<script src="/js/dashboard.js"></script>
+</body>
+</html>
