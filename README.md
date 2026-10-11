@@ -77,3 +77,10 @@ git clone -b claude/flux-bot-ita-website-eg1qbn https://github.com/dartisback/te
 
 Copia dentro la nuova cartella il tuo file `.env` (e `data/db.json` se vuoi tenere le licenze già create).
 Da quel momento, per avere le ultime modifiche basta fare doppio clic su `aggiorna.bat`.
+
+## Connettore FiveM di test
+
+`fivem/flux_connector/` è una risorsa che si collega al pannello (poll ogni ~5s) e mantiene una lista di bot *simulati*
+per provare il flusso completo in locale. Non modifica la lista giocatori, txAdmin né il server browser.
+Configura `config.lua`, copia la cartella in `resources/` e aggiungi `ensure flux_connector` al `server.cfg`.
+Comando da console: `flux_bots`.
