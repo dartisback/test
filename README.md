@@ -54,3 +54,15 @@ Metti `DEV_LOGIN=1` e apri `/auth/dev?role=owner|staff|user` (solo da 127.0.0.1)
 ## Struttura
 
 `server.js` (API/auth) · `lib/store.js` (DB su `data/db.json`) · `lib/discord.js` · `public/` (landing + dashboard)
+
+## Comandi Discord (bot)
+
+Avviando `start-bot.bat` il bot registra due slash command (ruoli in `COMMAND_ROLES`, default `owner,staff`):
+
+- `/crealicense tipo:<day|week|lifetime> [quantita:1-10] [utente:@utente]` — con `utente` la licenza è assegnata e attiva subito, senza `utente` resta libera da riscattare sul sito
+- `/rimuovilicense chiave:<FLUX-XXXX-...>` — elimina la licenza
+
+Le risposte sono visibili solo a chi esegue il comando. Per registrarli il bot deve essere stato invitato con lo scope `applications.commands`:
+`https://discord.com/oauth2/authorize?client_id=<CLIENT_ID>&scope=bot%20applications.commands&permissions=0`
+
+Sito e bot condividono `data/db.json` (devono girare sulla stessa macchina).
