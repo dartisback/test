@@ -4,7 +4,8 @@
   "description": "FLUX BOT ITA - pannello licenze con login Discord (localhost)",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "bot": "node bot.js"
   },
   "license": "UNLICENSED",
   "private": true,

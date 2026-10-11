@@ -7,7 +7,8 @@ Sito + dashboard con login Discord, gestione licenze per ruolo e coda comandi pe
 ```bash
 npm install
 cp .env.example .env     # poi compila i valori (vedi sotto)
-npm start                # http://localhost:3000
+npm start                # sito → http://localhost:3000
+npm run bot              # bot Discord online (in un secondo terminale)
 ```
 
 ## Configurazione Discord
@@ -17,8 +18,9 @@ npm start                # http://localhost:3000
    - aggiungi il redirect: `http://localhost:3000/auth/discord/callback`
 2. **Bot** → copia il token in `DISCORD_BOT_TOKEN` e attiva **Server Members Intent**.
    Il bot deve essere nel server (`DISCORD_GUILD_ID`) per leggere i ruoli.
-3. All'avvio del sito il bot si collega al gateway Discord e risulta **online** nel server
-   (se vedi `❌ Bot Discord fermato` nel terminale, il token è sbagliato).
+3. Il bot si avvia **a parte** dal sito: `start-bot.bat` (o `npm run bot`) lo mette online nel server.
+   Se vedi `❌ Bot Discord fermato` nel terminale, il token è sbagliato.
+   Il sito funziona anche a bot spento: il token serve solo per leggere i ruoli.
 4. `.env` è in `.gitignore`: **non committarlo mai**.
 
 ## Ruoli

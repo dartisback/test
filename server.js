@@ -6,7 +6,6 @@ const express = require('express');
 const cookieSession = require('cookie-session');
 const store = require('./lib/store');
 const discord = require('./lib/discord');
-const { startBot } = require('./lib/gateway');
 
 const PORT = Number(process.env.PORT) || 3000;
 const ROLES = {
@@ -343,5 +342,4 @@ app.listen(PORT, () => {
   if (!process.env.DISCORD_CLIENT_ID || !process.env.DISCORD_CLIENT_SECRET)
     console.warn('⚠  DISCORD_CLIENT_ID / DISCORD_CLIENT_SECRET mancanti nel .env: il login Discord non funzionerà.');
   if (!process.env.DISCORD_BOT_TOKEN) console.warn('⚠  DISCORD_BOT_TOKEN mancante: impossibile leggere i ruoli.');
-  startBot(process.env.DISCORD_BOT_TOKEN);
 });
