@@ -10,68 +10,40 @@
 </head>
 <body>
 <div class="bg-glow"></div>
-<div class="nav-wrap"><div class="container"><nav class="nav">
-  <a href="/" class="brand"><span class="logo" data-logo></span>FLUX BOT ITA</a>
-  <div class="nav-right">
-    <div class="status"><i class="dot"></i><span>servizi offline</span></div>
-    <button class="icon-btn" data-theme-toggle title="Tema">☾</button>
-    <span id="roleBadge" class="badge"></span>
-    <span id="userName" style="font-weight:600;font-size:14px"></span>
-    <span id="avatarSlot"></span>
-    <button class="btn btn-ghost btn-sm" id="logout">Esci</button>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <a href="/" class="side-brand"><span class="logo" data-logo></span><div><b>FLUX BOT ITA</b><small>pannello server</small></div></a>
+    <nav class="side-nav" id="sideNav">
+      <div class="side-label">MENU</div>
+      <a href="#/overview" data-view="overview"><i>▦</i>Panoramica</a>
+      <a href="#/controls" data-view="controls"><i>⚙</i>Controlli</a>
+      <a href="#/bots" data-view="bots"><i>👥</i>Bot</a>
+      <a href="#/activity" data-view="activity"><i>〰</i>Attività</a>
+      <a href="#/settings" data-view="settings"><i>✦</i>Impostazioni</a>
+      <div id="adminNav" hidden><div class="side-label">OWNER</div><a href="#/licenses" data-view="licenses"><i>🔑</i>Licenze</a></div>
+      <div class="side-label">SISTEMA</div>
+      <a href="/tutorial"><i>📖</i>Tutorial</a>
+      <a href="#/status" data-view="status"><i>◉</i>Stato</a>
+      <a href="#/discord" data-view="discord"><i>💬</i>Discord</a>
+      <a href="/"><i>⌂</i>Home</a>
+    </nav>
+    <div class="side-user">
+      <span id="avatarSlot"></span>
+      <div class="who"><b id="userName"></b><small><i class="dot on" style="display:inline-block;width:6px;height:6px"></i> <span id="roleBadge"></span></small></div>
+      <button class="icon-btn" id="logout" title="Esci">⎋</button>
+    </div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn" id="burger" title="Menu">☰</button>
+      <div class="crumb">Dashboard · <span class="badge" id="crumb">panoramica</span></div>
+      <div class="status" style="margin-left:auto"><i class="dot"></i><span>servizi offline</span></div>
+      <button class="icon-btn" data-theme-toggle title="Tema">☾</button>
+      <a href="/tutorial" class="btn btn-ghost btn-sm">Guida all'installazione</a>
+    </header>
+    <main class="view" id="view"></main>
   </div>
-</nav></div></div>
-
-<main class="container dash">
-  <div><h1>Dashboard</h1><p class="sub">Gestisci licenza e fake player del tuo server FiveM.</p></div>
-
-  <!-- licenza -->
-  <section class="card" id="licCard"></section>
-
-  <!-- controlli -->
-  <section id="controls" hidden>
-    <div class="sect-title"><i></i>Controlli server</div>
-    <p class="hint">i comandi vengono messi in coda — il server li esegue al prossimo poll (~5s)</p>
-    <div class="grid-2">
-      <div class="card"><div class="card-head"><div class="ico g1">＋</div><h3>Aggiungi bot</h3></div>
-        <p>Riempi il server all'istante. Compaiono in ~5 secondi.</p>
-        <div class="field"><input class="input" id="addCount" type="number" min="1" value="5"><button class="btn btn-primary" id="addBtn">Aggiungi</button></div>
-        <div class="field-note" id="botCount"></div></div>
-      <div class="card"><div class="card-head"><div class="ico g3">－</div><h3>Rimuovi uno</h3></div>
-        <p>Espelli un singolo bot dal suo ID numerico.</p>
-        <div class="field"><input class="input" id="rmId" type="number" placeholder="100001"><button class="btn btn-ghost" id="rmBtn">Rimuovi</button></div></div>
-      <div class="card"><div class="card-head"><div class="ico g5">🗑</div><h3>Rimuovi tutti</h3></div>
-        <p>Svuota il server da ogni fake player in un colpo solo.</p>
-        <div class="field"><button class="btn btn-danger" id="rmAllBtn">Rimuovi tutti i bot</button></div></div>
-      <div class="card"><div class="card-head"><div class="ico g6">✎</div><h3>Nomi personalizzati</h3></div>
-        <p>Nomi separati da virgola — si mimetizzano con i giocatori reali.</p>
-        <div class="field"><input class="input" id="names" placeholder="Marco_V, LucaRP, xXStefanoXx"><button class="btn btn-ghost" id="genBtn">Genera</button><button class="btn btn-primary" id="applyBtn">Applica</button></div></div>
-    </div>
-    <div class="grid-2" style="margin-top:18px">
-      <div class="card"><div class="sect-title" style="font-size:16px"><i></i>Bot attivi</div><div class="chips" id="botList"></div></div>
-      <div class="card"><div class="sect-title" style="font-size:16px"><i></i>Attività</div><div class="log" id="log"></div></div>
-    </div>
-  </section>
-
-  <!-- admin -->
-  <section id="admin" hidden>
-    <div class="sect-title"><i></i>Gestione licenze <span class="badge owner">owner</span></div>
-    <p class="hint">crea o elimina licenze day / week / lifetime — la durata parte dal riscatto</p>
-    <div class="card">
-      <div class="field" style="margin-top:0">
-        <select class="input" id="newType" style="max-width:190px"><option value="day">Day (24h)</option><option value="week">Week (7 giorni)</option><option value="lifetime">Lifetime</option></select>
-        <input class="input" id="newCount" type="number" min="1" max="50" value="1" style="max-width:100px" title="Quantità">
-        <input class="input" id="newNote" placeholder="Nota (opzionale)" maxlength="80">
-        <button class="btn btn-primary" id="createBtn">Crea licenza</button>
-      </div>
-      <div id="createdBox" class="field-note"></div>
-      <div class="table-wrap" style="margin-top:18px"><table>
-        <thead><tr><th>Chiave</th><th>Tipo</th><th>Stato</th><th>Riscattata da</th><th>Scadenza</th><th>Nota</th><th></th></tr></thead>
-        <tbody id="licRows"></tbody></table></div>
-    </div>
-  </section>
-</main>
-
+</div>
 <script src="/js/common.js"></script>
 <script src="/js/dashboard.js"></script>
 </body>

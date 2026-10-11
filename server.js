@@ -175,6 +175,7 @@ function describe(lic) {
     ...store.publicLicense(lic),
     botList: lic.bots,
     pending: lic.queue.length,
+    lastPoll: lic.lastPoll,
     log: lic.log.slice(-30),
     connected,
   };
@@ -329,6 +330,7 @@ setInterval(() => {
 
 // ---------- pagine ----------
 const pub = path.join(__dirname, 'public');
+app.get('/tutorial', (req, res) => res.sendFile(path.join(pub, 'tutorial.html')));
 app.get('/dashboard', (req, res) => (req.user ? res.sendFile(path.join(pub, 'dashboard.html')) : res.redirect('/')));
 app.use(express.static(pub, { index: 'index.html' }));
 

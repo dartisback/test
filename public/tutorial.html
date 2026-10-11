@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tutorial — FLUX BOT ITA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="nav-wrap"><div class="container"><nav class="nav">
+  <a href="/" class="brand"><span class="logo" data-logo></span>FLUX BOT ITA</a>
+  <div class="nav-links"><a href="/">Home</a><a href="/#features">Funzioni</a><a href="/#pricing">Piani</a><a href="/tutorial" class="active">Tutorial</a></div>
+  <div class="nav-right">
+    <div class="status"><i class="dot"></i><span>servizi offline</span></div>
+    <button class="icon-btn" data-theme-toggle title="Tema">☾</button>
+    <a href="/dashboard" class="btn btn-primary btn-sm" id="navCta">DASHBOARD →</a>
+  </div>
+</nav></div></div>
+
+<main class="container" style="padding-bottom:60px">
+  <section class="block" style="padding-top:70px">
+    <div class="sec-head"><div class="ghost">GUIDA</div><h2>Come <span class="accent">iniziare</span></h2>
+      <p>Dal login all'attivazione della licenza, fino al collegamento del tuo server. Ci vogliono pochi minuti.</p></div>
+    <div class="timeline">
+      <div class="step"><div class="num">1</div><div class="card"><h3>Accedi con Discord</h3>
+        <p>Entra nel server Discord e fatti assegnare il ruolo. Poi clicca <b>Accedi con Discord</b> dalla home: resti sulla home e il tuo nome compare in alto.</p>
+        <div style="margin-top:16px"><a href="/auth/discord" class="btn btn-primary btn-sm">Accedi con Discord</a></div></div></div>
+
+      <div class="step"><div class="num">2</div><div class="card"><h3>Ottieni una licenza</h3>
+        <p>Lo staff o l'owner crea la tua chiave con il comando <code class="inl">/crealicense</code> nel server Discord (day, week o lifetime) e te la consegna. Il ruolo <b>staff</b> riceve in automatico una key <b>lifetime</b>.</p>
+        <div class="code">/crealicense tipo:<span class="k">week</span> utente:<span class="k">@tuonome</span>   <span class="c"># già attiva</span>
+/crealicense tipo:<span class="k">day</span>                  <span class="c"># libera: la riscatti tu</span></div></div></div>
+
+      <div class="step"><div class="num">3</div><div class="card"><h3>Attiva la licenza</h3>
+        <p>Dalla home clicca sul tuo nome → <b>Attiva licenza</b>, incolla la chiave e premi <b>Riscatta</b>. Si apre subito la dashboard con la panoramica del server.</p>
+        <div class="code">FLUX-XXXX-XXXX-XXXX-XXXX</div>
+        <div class="note">Le licenze day e week partono dal momento del riscatto; la lifetime non scade mai.</div></div></div>
+
+      <div class="step"><div class="num">4</div><div class="card"><h3>Usa i controlli</h3>
+        <p>In <b>Controlli</b> imposti quanti bot vuoi, rimuovi un singolo bot per ID, svuoti tutto o applichi nomi personalizzati. I comandi vanno in coda e vengono eseguiti al prossimo poll (~5 secondi). In <b>Bot</b> e <b>Attività</b> vedi cosa è successo.</p>
+        <div style="margin-top:16px"><a href="/dashboard#/controls" class="btn btn-primary btn-sm">Apri i controlli</a></div></div></div>
+
+      <div class="step"><div class="num">5</div><div class="card"><h3>Collega il tuo server (API)</h3>
+        <p>Il server interroga il pannello ogni ~5 secondi con la tua licenza, riceve i comandi in coda e restituisce lo stato dei bot. Il pannello mostra <b>connesso</b> quando riceve un poll recente.</p>
+        <div class="code"><span class="k">POST</span> /api/fivem/poll
+<span class="k">x-license:</span> FLUX-XXXX-XXXX-XXXX-XXXX
+
+<span class="c">→ { "ok": true,
+     "commands": [ { "cmd": "add_bot", "count": 5 } ],
+     "bots": [ { "id": 100001, "name": "Marco_V" } ],
+     "max": 64 }</span></div>
+        <div class="note">Comandi possibili: <code class="inl">add_bot</code> <code class="inl">remove_bot</code> <code class="inl">remove_all</code> <code class="inl">set_names</code>. Questo progetto include il pannello e l'API; la risorsa lato server FiveM non è inclusa.</div></div></div>
+    </div>
+  </section>
+</main>
+<footer><div class="container">© <span id="yr"></span> FLUX BOT ITA — Tutti i diritti riservati.</div></footer>
+<script src="/js/common.js"></script>
+<script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+</body>
+</html>
