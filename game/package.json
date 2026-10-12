@@ -1,8 +1,9 @@
 {
-  "name": "belluno-patrol",
-  "version": "0.1.0",
+  "name": "napoli-emergency",
+  "version": "0.2.0",
   "private": true,
-  "description": "Belluno Patrol - prototipo singleplayer in terza persona ambientato a Belluno",
+  "type": "module",
+  "description": "Napoli Emergency - prototipo singleplayer in terza persona (Polizia, Carabinieri, Croce Rossa, Vigili del Fuoco)",
   "scripts": {
     "build": "node build.mjs",
     "dev": "node build.mjs --watch",

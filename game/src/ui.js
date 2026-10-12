@@ -1,15 +1,17 @@
 import { settings, saveSettings, resetSettings, DEFAULTS } from './settings.js';
 import { CAR_TYPES } from './vehicle.js';
+import { FACTIONS, FACTION_IDS } from './napoli.js';
 
 const $ = (id) => document.getElementById(id);
 
 const TIPS = [
-  'Suggerimento: nella sala operativa trovi la bacheca con le chiavi delle volanti.',
-  'Suggerimento: premi Q in auto per attivare la sirena bitonale.',
-  'Suggerimento: premi F2 in partita per rivedere i comandi.',
-  'Suggerimento: dal Menu Admin (F1) puoi cambiare ora del giorno e teletrasportarti.',
-  'Suggerimento: con il tasto destro del mouse puoi mirare con pistola e taser.',
-  'Suggerimento: premi M per aprire la mappa di Belluno.',
+  'Suggerimento: premi R per aprire la radio e chiedere rinforzi, ambulanza o vigili del fuoco.',
+  'Suggerimento: Q attiva la sirena italiana. Le auto in strada ti lasciano passare.',
+  'Suggerimento: grida «Fermo!» con X: i sospetti possono arrendersi.',
+  'Suggerimento: per gli arresti usa il taser (2), poi ammanetta con E e consegna in sede.',
+  'Suggerimento: la Croce Rossa deve stabilizzare i pazienti tenendo premuto E.',
+  'Suggerimento: i Vigili del Fuoco usano la lancia (1): tieni premuto il tasto sinistro.',
+  'Suggerimento: premi M per aprire la mappa di Napoli. F1 per il Menu Admin.',
 ];
 
 const SETTINGS_SCHEMA = [
@@ -35,9 +37,9 @@ const SETTINGS_SCHEMA = [
 ];
 
 const CONTROLS = [
-  ['A piedi', [['W A S D', 'Muoviti'], ['Mouse', 'Guarda intorno'], ['Shift', 'Corri'], ['Spazio', 'Salta'], ['C / Ctrl', 'Accovacciati'], ['E', 'Interagisci'], ['F', 'Sali / scendi dall\'auto'], ['1 · 2 · 3', 'Pistola · Taser · Manganello'], ['0', 'Riponi l\'arma'], ['Tasto destro', 'Mira (pistola/taser)'], ['Click sinistro', 'Spara / colpisci'], ['M', 'Mappa'], ['F1 / F2', 'Admin / Aiuto']]],
-  ['In auto', [['W / S', 'Accelera / frena e retro'], ['A / D', 'Sterza'], ['Spazio', 'Freno a mano'], ['Q', 'Sirena'], ['H', 'Clacson'], ['L', 'Fari'], ['V', 'Riallinea camera'], ['Rotella', 'Distanza camera (a piedi)'], ['F', 'Scendi']]],
-  ['Controller', [['Stick sx / dx', 'Muovi · Camera'], ['A', 'Salta / freno a mano'], ['B', 'Accovacciati'], ['X', 'Interagisci'], ['Y', 'Sali / scendi'], ['RT / LT', 'Accelera, spara / frena, mira'], ['LB / RB', 'Sirena / fari'], ['L3', 'Corri'], ['Croce', 'Armi']]],
+  ['A piedi', [['W A S D / Mouse', 'Muoviti / guarda'], ['Shift · Spazio · C', 'Corri · Salta · Accovacciati'], ['E', 'Interagisci (tieni premuto per soccorrere)'], ['F', 'Sali / scendi dal veicolo'], ['1 · 2 · 3 · 0', 'Equipaggiamento / riponi'], ['Tasto destro / sinistro', 'Mira / usa (spara, spruzza)'], ['X', 'Grida «Fermo!» (forze dell\'ordine)'], ['R', 'Radio: rinforzi, ambulanza, VVF'], ['Y / N', 'Accetta / rifiuta la chiamata'], ['M · F1 · F2', 'Mappa · Admin · Aiuto']]],
+  ['In veicolo', [['W / S · A / D', 'Accelera-frena-retro · Sterza'], ['Spazio', 'Freno a mano'], ['Q', 'Sirena italiana'], ['H · L · V', 'Clacson · Fari · Riallinea camera'], ['F', 'Scendi'], ['R', 'Radio']]],
+  ['Controller', [['Stick sx / dx', 'Muovi · Camera'], ['A', 'Salta / freno a mano'], ['B', 'Accovacciati'], ['X', 'Interagisci'], ['Y', 'Sali / scendi'], ['RT / LT', 'Accelera, usa / frena, mira'], ['LB / RB', 'Sirena / fari'], ['L3', 'Corri']]],
 ];
 
 export class UI {
@@ -65,6 +67,7 @@ export class UI {
     if (name !== 'admin' && this.adminTimer) { clearInterval(this.adminTimer); this.adminTimer = null; }
     if (name === 'admin') this._buildAdmin();
     if (name === 'spawn') this._buildSpawn();
+    if (name === 'faction') this._buildFaction();
   }
   hideAll() { document.querySelectorAll('.screen').forEach((s) => s.classList.add('hidden')); this.screen = null; }
   get hudEl() { return $('hud'); }
@@ -79,7 +82,7 @@ export class UI {
       this.game && this.game.audio.ui('click');
       const act = b.dataset.act;
       switch (act) {
-        case 'new': this.context = 'home'; this.show('spawn'); break;
+        case 'new': this.context = 'home'; this.show('faction'); break;
         case 'home': this.context = 'home'; this.show('home'); break;
         case 'settings': this.show('settings'); break;
         case 'admin': this.show('admin'); break;
@@ -98,7 +101,7 @@ export class UI {
     $('click-go').onclick = () => this.game.beginPlay();
     $('spawn-go').onclick = () => {
       if (!this.spawnSel) return;
-      this.game.startNewGame(this.spawnSel, $('spawn-duty').checked);
+      this.game.startNewGame(this.factionSel, this.spawnSel, $('spawn-duty').checked);
     };
     const sm = $('spawn-map');
     sm.addEventListener('click', (e) => {
@@ -107,8 +110,8 @@ export class UI {
       const w = this.game && this.game.mapR.pickWorld(px, py);
       if (!w) return;
       let best = null, bd = 1e9;
-      for (const s of this.game.world.layout.spawns) { const d = Math.hypot(s.x - w.x, s.z - w.z); if (d < bd) { bd = d; best = s; } }
-      if (best && bd < 60) this.selectSpawn(best.id);
+      for (const s of this._spawns()) { const d = Math.hypot(s.x - w.x, s.z - w.z); if (d < bd) { bd = d; best = s; } }
+      if (best && bd < 120) this.selectSpawn(best.id);
     });
   }
 
@@ -123,28 +126,48 @@ export class UI {
     this.setProgress(0, 'Caricamento…');
   }
 
+  // ---------- corpo ----------
+  _buildFaction() {
+    const wrap = $('faction-cards'); wrap.innerHTML = '';
+    for (const id of FACTION_IDS) {
+      const f = FACTIONS[id];
+      const card = document.createElement('button');
+      card.className = 'faction-card'; card.style.setProperty('--fc', f.color);
+      const icon = { polizia: '🚓', carabinieri: '🚔', croce_rossa: '🚑', vvf: '🚒' }[id];
+      card.innerHTML = `<div class="fc-icon">${icon}</div><h3>${f.name}</h3><p>${f.desc}</p><div class="fc-meta">Sede: ${f.hq}</div>`;
+      card.onclick = () => { this.game.audio.ui('click'); this.factionSel = id; this.show('spawn'); };
+      wrap.appendChild(card);
+    }
+  }
+
   // ---------- spawn ----------
+  _spawns() {
+    const f = FACTIONS[this.factionSel || 'polizia'];
+    return this.game.world.city.spawns.map((s) => (s.hq ? { ...s, x: f.door.x - 3, z: f.door.z + 12, name: `Davanti a: ${f.hq}` } : s));
+  }
   _buildSpawn() {
-    const g = this.game, L = g.world.layout;
     const list = $('spawn-list'); list.innerHTML = '';
-    L.spawns.forEach((s, i) => {
+    const sp = this._spawns();
+    $('spawn-title').textContent = `Scegli dove iniziare · ${FACTIONS[this.factionSel].name}`;
+    sp.forEach((s, i) => {
       const b = document.createElement('button');
       b.className = 'spawn-item'; b.dataset.id = s.id;
       b.innerHTML = `${i + 1}. ${s.name}<small>${s.desc}</small>`;
-      b.onclick = () => { g.audio.ui('click'); this.selectSpawn(s.id); };
+      b.onclick = () => { this.game.audio.ui('click'); this.selectSpawn(s.id); };
       list.appendChild(b);
     });
-    if (!this.spawnSel) this.spawnSel = L.spawns[0].id;
+    if (!this.spawnSel || !sp.find((x) => x.id === this.spawnSel)) this.spawnSel = sp[0].id;
     this.selectSpawn(this.spawnSel);
   }
   selectSpawn(id) {
     this.spawnSel = id;
-    const L = this.game.world.layout;
+    const sp = this._spawns();
     document.querySelectorAll('.spawn-item').forEach((b) => b.classList.toggle('sel', b.dataset.id === id));
-    const s = L.spawns.find((x) => x.id === id);
+    const s = sp.find((x) => x.id === id);
     $('spawn-info').textContent = s ? s.desc : '';
     const c = $('spawn-map');
-    this.game.mapR.drawFull(c.getContext('2d'), c.width, c.height, { spawns: L.spawns, selected: id });
+    const f = FACTIONS[this.factionSel];
+    this.game.mapR.drawFull(c.getContext('2d'), c.width, c.height, { spawns: sp, selected: id, icons: [{ x: f.door.x, z: f.door.z, color: f.color }] });
   }
 
   // ---------- impostazioni ----------
@@ -196,40 +219,41 @@ export class UI {
   _buildAdmin() {
     const g = this.game, A = g.admin;
     const body = $('admin-body');
-    const pois = [...g.world.layout.spawns.map((s) => [s.id, s.name]), ['questura_in', 'Dentro la Questura'], ['yard', 'Piazzale volanti'], ['martiri2', 'Piazza dei Martiri (centro)']];
+    const pois = [...g.world.city.spawns.filter((s) => !s.hq).map((s) => [s.id, s.name]), ...FACTION_IDS.map((id) => ['hq_' + id, FACTIONS[id].hq]), ['hq_in', 'Dentro la tua sede']];
+    const callBtns = (g.faction.law ? [['scippo', 'Scippo'], ['inseguimento', 'Inseguimento'], ['rapina', 'Rapina'], ['controllo', 'Controllo'], ['rissa', 'Rissa']] : g.faction.id === 'croce_rossa' ? [['malore', 'Malore'], ['incidente', 'Incidente'], ['trasporto', 'Trasporto']] : [['incendio', 'Incendio'], ['autofiamme', 'Auto in fiamme']]);
     body.innerHTML = `
     <div class="adm">
-      <div class="card"><h3>Giocatore</h3>
+      <div class="card"><h3>Corpo</h3>
+        <div class="btns">${FACTION_IDS.map((id) => `<button class="btn small" data-adm="fac-${id}">${FACTIONS[id].name}</button>`).join('')}</div>
         <div class="line"><select id="adm-tp">${pois.map(([id, n]) => `<option value="${id}">${n}</option>`).join('')}</select><button class="btn small" id="adm-tp-go">Teletrasporta</button></div>
+      </div>
+      <div class="card"><h3>Giocatore</h3>
         <div class="btns">
-          <button class="btn small" data-adm="duty">In servizio</button>
-          <button class="btn small" data-adm="uniform">+ Divisa</button>
-          <button class="btn small" data-adm="weapons">+ Armi</button>
-          <button class="btn small" data-adm="all">Kit completo</button>
-          <button class="btn small" data-adm="civil">Torna cittadino</button>
-          <button class="btn small" data-adm="reset">Reset missione</button>
+          <button class="btn small" data-adm="duty">In servizio</button><button class="btn small" data-adm="uniform">+ Divisa</button>
+          <button class="btn small" data-adm="weapons">+ Attrezzatura</button><button class="btn small" data-adm="all">Kit completo</button>
+          <button class="btn small" data-adm="civil">Torna cittadino</button><button class="btn small" data-adm="reset">Azzera partita</button>
         </div>
         <div class="line"><span>Velocità</span><input type="range" id="adm-speed" min="0.5" max="5" step="0.1" value="${g.player.speedMul}"><span id="adm-speed-v">${g.player.speedMul}×</span></div>
         <div class="line"><span>Salto</span><input type="range" id="adm-jump" min="1" max="4" step="0.1" value="${g.player.jumpMul}"><span id="adm-jump-v">${g.player.jumpMul}×</span></div>
-        <div class="line"><label class="check" style="margin:0"><input type="checkbox" id="adm-noclip" ${g.player.noclip ? 'checked' : ''}> Volo / noclip (Spazio sale, Ctrl scende)</label></div>
+        <div class="line"><label class="check" style="margin:0"><input type="checkbox" id="adm-noclip" ${g.player.noclip ? 'checked' : ''}> Volo / noclip</label></div>
+      </div>
+      <div class="card"><h3>Chiamate (test)</h3>
+        <div class="btns">${callBtns.map(([id, n]) => `<button class="btn small" data-adm="call-${id}">${n}</button>`).join('')}</div>
+        <div class="btns" style="margin-top:8px"><button class="btn small" data-adm="backup">Rinforzi ora</button></div>
       </div>
       <div class="card"><h3>Veicoli</h3>
-        <div class="btns">
-          <button class="btn small" data-adm="car-giulia">Genera Giulia</button>
-          <button class="btn small" data-adm="car-giulietta">Genera Giulietta</button>
-          <button class="btn small" data-adm="unlock">Sblocca tutte</button>
-          <button class="btn small" data-adm="carhere">Porta l'auto qui</button>
-        </div>
-        <div class="line"><span>Potenza motore</span><input type="range" id="adm-car" min="0.5" max="3" step="0.1" value="${g.carMul}"><span id="adm-car-v">${g.carMul}×</span></div>
+        <div class="btns">${Object.values(CAR_TYPES).filter((t) => t.faction).map((t) => `<button class="btn small" data-adm="car-${t.id}">${t.name.split('(')[0].trim()}</button>`).join('')}
+          <button class="btn small" data-adm="unlock">Sblocca tutti</button><button class="btn small" data-adm="carhere">Porta il mezzo qui</button></div>
+        <div class="line"><span>Potenza</span><input type="range" id="adm-car" min="0.5" max="3" step="0.1" value="${g.carMul}"><span id="adm-car-v">${g.carMul}×</span></div>
       </div>
       <div class="card"><h3>Mondo</h3>
         <div class="line"><span>Ora</span><input type="range" id="adm-hour" min="0" max="24" step="0.1" value="${g.world.hour.toFixed(1)}"><span id="adm-hour-v">${g.world.hour.toFixed(1)}</span></div>
-        <div class="line"><span>Scorrere tempo</span><select id="adm-ts">${[[0, 'Fermo'], [30, 'Lento (×30)'], [120, '×120'], [600, '×600']].map(([v, t]) => `<option value="${v}" ${g.timeScale === v ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+        <div class="line"><span>Scorrere tempo</span><select id="adm-ts">${[[0, 'Fermo'], [20, 'Lento'], [120, '×120'], [600, '×600']].map(([v, t]) => `<option value="${v}" ${g.timeScale === v ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
         <div class="btns"><button class="btn small" data-adm="h6">Alba</button><button class="btn small" data-adm="h12">Mezzogiorno</button><button class="btn small" data-adm="h19">Tramonto</button><button class="btn small" data-adm="h23">Notte</button></div>
         <div class="line"><label class="check" style="margin:0"><input type="checkbox" id="adm-fps" ${settings.showFps ? 'checked' : ''}> Mostra FPS</label></div>
       </div>
-      <div class="card"><h3>Fase missione</h3>
-        <div class="btns">${['Raggiungi Questura', 'Servizio', 'Divisa', 'Armi', 'Chiavi', 'Volante', 'Pattuglia'].map((n, i) => `<button class="btn small" data-adm="stage-${i}">${i}. ${n}</button>`).join('')}</div>
+      <div class="card"><h3>Fase turno</h3>
+        <div class="btns">${['Sede', 'Servizio', 'Divisa', 'Attrezzatura', 'Chiavi', 'Veicolo', 'Pattuglia'].map((n, i) => `<button class="btn small" data-adm="stage-${i}">${i}. ${n}</button>`).join('')}</div>
       </div>
       <div class="card"><h3>Info</h3><div class="info" id="adm-info"></div></div>
     </div>`;
@@ -247,6 +271,8 @@ export class UI {
         const k = b.dataset.adm;
         if (k.startsWith('stage-')) A.stage(parseInt(k.slice(6), 10));
         else if (k.startsWith('car-')) A.spawnCar(k.slice(4));
+        else if (k.startsWith('fac-')) { A.faction(k.slice(4)); this._buildAdmin(); }
+        else if (k.startsWith('call-')) A.call(k.slice(5));
         else if (/^h\d+$/.test(k)) { A.setHour(parseInt(k.slice(1), 10)); $('adm-hour').value = parseInt(k.slice(1), 10); }
         else A.action(k);
       };
@@ -256,14 +282,15 @@ export class UI {
     this.adminTimer = setInterval(upd, 400);
   }
 
-  // ---------- chiavi volanti ----------
-  openKeys() {
+  // ---------- chiavi veicoli ----------
+  openKeys(typeIds) {
     const wrap = $('car-cards'); wrap.innerHTML = '';
-    for (const t of Object.values(CAR_TYPES)) {
+    for (const id of typeIds) {
+      const t = CAR_TYPES[id];
       const card = document.createElement('div'); card.className = 'car-card';
-      const stats = t.id === 'giulia' ? [['Velocità', 92], ['Accelerazione', 84], ['Maneggevolezza', 66]] : [['Velocità', 78], ['Accelerazione', 72], ['Maneggevolezza', 88]];
+      const stats = { giulia: [92, 84, 66], giulietta: [78, 72, 88], cc_giulia: [92, 84, 66], cc_giulietta: [78, 72, 88], ambulanza: [58, 50, 60], autopompa: [40, 34, 38] }[id] || [60, 60, 60];
       card.innerHTML = `<canvas width="360" height="150"></canvas><h3>${t.name}</h3><div class="muted">${t.desc}</div>
-        ${stats.map(([n, v]) => `<div class="car-stat"><span>${n}</span><div class="b"><i style="width:${v}%"></i></div></div>`).join('')}
+        ${['Velocità', 'Accelerazione', 'Maneggevolezza'].map((n, i) => `<div class="car-stat"><span>${n}</span><div class="b"><i style="width:${stats[i]}%"></i></div></div>`).join('')}
         <button class="btn primary" style="margin-top:12px;width:100%">Prendi le chiavi</button>`;
       card.querySelector('button').onclick = () => { this.game.audio.ui('ok'); this.game.closeKeys(); this.game.missions.chooseCar(t.id); };
       wrap.appendChild(card);
@@ -274,15 +301,25 @@ export class UI {
   }
   _drawCarPreview(cv, t) {
     const g = cv.getContext('2d'), W = cv.width, H = cv.height;
-    const sc = 60, ox = W / 2, oy = H - 38;
-    const draw = (pts, fill) => { g.beginPath(); pts.forEach((p, i) => { const [x, y] = [ox + p[0] * sc * 0.72, oy - p[1] * sc * 0.72]; if (i) g.lineTo(x, y); else g.moveTo(x, y); }); g.closePath(); g.fillStyle = fill; g.fill(); };
-    draw(t.lower, '#1b3a8a'); draw(t.cabin, '#0f1a28');
-    g.fillStyle = '#f3f5f7'; g.beginPath(); g.moveTo(ox - 2.0 * sc * 0.72, oy - 0.62 * sc * 0.72); g.lineTo(ox + 2.1 * sc * 0.72, oy - 0.76 * sc * 0.72); g.lineTo(ox + 2.1 * sc * 0.72, oy - 0.56 * sc * 0.72); g.lineTo(ox - 2.0 * sc * 0.72, oy - 0.5 * sc * 0.72); g.fill();
-    g.fillStyle = '#17489c'; g.font = 'italic bold 15px Arial'; g.textAlign = 'center'; g.fillText('POLIZIA', ox, oy - 0.57 * sc * 0.72 + 5);
-    for (const wz of [-t.wb / 2, t.wb / 2]) {
-      g.beginPath(); g.arc(ox + wz * sc * 0.72, oy - 0.335 * sc * 0.72, 0.335 * sc * 0.72, 0, Math.PI * 2); g.fillStyle = '#111'; g.fill();
-      g.beginPath(); g.arc(ox + wz * sc * 0.72, oy - 0.335 * sc * 0.72, 0.2 * sc * 0.72, 0, Math.PI * 2); g.fillStyle = '#b5b9bf'; g.fill();
+    const sc = 60 * 0.72, ox = W / 2, oy = H - 38;
+    const col = '#' + t.color.toString(16).padStart(6, '0');
+    const draw = (pts, fill) => { g.beginPath(); pts.forEach((p, i) => { const x = ox + p[0] * sc, y = oy - p[1] * sc; if (i) g.lineTo(x, y); else g.moveTo(x, y); }); g.closePath(); g.fillStyle = fill; g.fill(); };
+    if (t.shape === 'sedan') {
+      draw(t.lower, col); draw(t.cabin, '#0f1a28');
+      g.fillStyle = t.livery === 'carabinieri' ? '#f3f5f7' : '#f3f5f7'; g.beginPath(); g.moveTo(ox - 2.0 * sc, oy - 0.62 * sc); g.lineTo(ox + 2.1 * sc, oy - 0.76 * sc); g.lineTo(ox + 2.1 * sc, oy - 0.56 * sc); g.lineTo(ox - 2.0 * sc, oy - 0.5 * sc); g.fill();
+      g.fillStyle = t.livery === 'carabinieri' ? '#c4202a' : '#17489c'; g.font = 'italic bold 13px Arial'; g.textAlign = 'center'; g.fillText(t.livery === 'carabinieri' ? 'CARABINIERI' : 'POLIZIA', ox, oy - 0.57 * sc + 5);
+    } else if (t.shape === 'van') {
+      draw([[-3, 0.4], [2.9, 0.4], [3.0, 1.0], [2.0, 1.3], [1.5, 2.1], [1.35, 2.5], [-3, 2.5]], '#f3f3f0');
+      g.fillStyle = '#d9202a'; g.fillRect(ox - 3 * sc, oy - 1.0 * sc, 6 * sc, 0.3 * sc);
+      g.fillStyle = '#0f1a28'; g.beginPath(); g.moveTo(ox + 1.5 * sc, oy - 2.05 * sc); g.lineTo(ox + 2.0 * sc, oy - 1.35 * sc); g.lineTo(ox + 1.45 * sc, oy - 1.35 * sc); g.fill();
+    } else {
+      draw([[1.7, 0.6], [3.9, 0.6], [3.95, 1.5], [3.25, 2.95], [1.7, 2.95]], col);
+      g.fillStyle = col; g.fillRect(ox - 3.9 * sc, oy - 2.5 * sc, 5.6 * sc, 1.9 * sc);
+      g.fillStyle = '#aeb4ba'; g.fillRect(ox - 3.5 * sc, oy - 2.8 * sc, 4.8 * sc, 0.12 * sc);
     }
+    const wl = t.shape === 'truck' ? [2.9, -1.2, -2.5] : [t.wb / 2, -t.wb / 2];
+    const r = (t.shape === 'truck' ? 0.52 : 0.35) * sc;
+    for (const wz of wl) { g.beginPath(); g.arc(ox + wz * sc, oy - r, r, 0, Math.PI * 2); g.fillStyle = '#111'; g.fill(); g.beginPath(); g.arc(ox + wz * sc, oy - r, r * 0.6, 0, Math.PI * 2); g.fillStyle = '#b5b9bf'; g.fill(); }
   }
 
   // ---------- HUD ----------
@@ -293,6 +330,13 @@ export class UI {
     while (wrap.children.length > 4) wrap.removeChild(wrap.firstChild);
     setTimeout(() => d.classList.add('out'), 4200);
     setTimeout(() => d.remove(), 4800);
+  }
+  setScore(n) { const el = $('score'); if (el) el.textContent = `★ ${n}`; }
+  setCallPrompt(p) { this.callPrompt = p; }
+  showRadio(on, opts = []) {
+    const el = $('radio'); if (!el) return;
+    el.classList.toggle('hidden', !on);
+    if (on) el.innerHTML = '<b>RADIO</b>' + opts.map((o, i) => `<div><kbd>${i + 1}</kbd> ${o.label}</div>`).join('') + '<div class="muted">R per chiudere</div>';
   }
   setObjective(title, sub) { $('obj-text').textContent = title; $('obj-sub').textContent = sub || ''; }
   setPrompt(p) {

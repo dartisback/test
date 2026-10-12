@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Belluno Patrol</title>
+  <title>Napoli Emergency</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,6 +18,7 @@
   </div>
   <div id="topright">
     <div id="clock">15:30</div>
+    <div id="score">★ 0</div>
     <div id="duty-badge" class="hidden">● IN SERVIZIO</div>
     <div id="calls"></div>
     <div id="fps"></div>
@@ -37,6 +38,8 @@
   </div>
   <div id="weapon-box" class="hidden"></div>
   <div id="help-panel" class="hidden"></div>
+  <div id="radio" class="hidden"></div>
+  <div id="pursuit" class="hidden"><span>PRESSIONE</span><div class="pbar"><div id="pursuit-bar"></div></div></div>
   <div id="fade"></div>
   <div id="bigmap" class="hidden"><canvas id="bigmap-canvas" width="860" height="720"></canvas><div class="bigmap-hint">M per chiudere</div></div>
 </div>
@@ -49,9 +52,9 @@
     <div class="lights"><i></i><i></i></div>
     <div class="home-card">
       <div class="logo">
-        <div class="logo-top">POLIZIA DI STATO · SIMULATORE</div>
-        <h1>BELLUNO <span>PATROL</span></h1>
-        <div class="logo-sub">Singleplayer · Terza persona · Dolomiti, Veneto</div>
+        <div class="logo-top">POLIZIA · CARABINIERI · CROCE ROSSA · VIGILI DEL FUOCO</div>
+        <h1>NAPOLI <span>EMERGENCY</span></h1>
+        <div class="logo-sub">Singleplayer · Terza persona · Napoli e Vesuvio</div>
       </div>
       <nav class="menu">
         <button class="btn primary" data-act="new">Nuova partita</button>
@@ -60,25 +63,35 @@
         <button class="btn" data-act="controls">Comandi</button>
         <button class="btn" data-act="credits">Crediti</button>
       </nav>
-      <div class="home-foot">v0.1 prototipo · Layout stilizzato del quartiere Questura di Belluno</div>
+      <div class="home-foot">v0.2 prototipo · Napoli compressa: Lungomare, Plebiscito, Quartieri Spagnoli, Mercato, San Giovanni, Scampia, Vomero, Torre del Greco</div>
+    </div>
+  </section>
+
+  <!-- SCELTA DEL CORPO -->
+  <section id="screen-faction" class="screen hidden">
+    <div class="panel wide">
+      <h2>Scegli il tuo corpo</h2>
+      <p class="muted">Ogni corpo ha sede, divisa, mezzi, equipaggiamento e missioni diverse.</p>
+      <div id="faction-cards"></div>
+      <div class="row"><button class="btn" data-act="home">Indietro</button></div>
     </div>
   </section>
 
   <!-- SELEZIONE SPAWN -->
   <section id="screen-spawn" class="screen hidden">
     <div class="panel wide">
-      <h2>Scegli dove iniziare</h2>
-      <p class="muted">Sei un cittadino di Belluno. Scegli il punto di partenza sulla mappa o dalla lista.</p>
+      <h2 id="spawn-title">Scegli dove iniziare</h2>
+      <p class="muted">Sei un cittadino di Napoli. Scegli il punto di partenza sulla mappa o dalla lista.</p>
       <div class="spawn-grid">
-        <canvas id="spawn-map" width="620" height="540"></canvas>
+        <canvas id="spawn-map" width="760" height="420"></canvas>
         <div class="spawn-side">
           <div id="spawn-list"></div>
           <div id="spawn-info" class="muted"></div>
-          <label class="check"><input type="checkbox" id="spawn-duty"> Inizia già in servizio (divisa + armi + volante)</label>
+          <label class="check"><input type="checkbox" id="spawn-duty"> Inizia già in servizio (divisa + attrezzatura + mezzo)</label>
         </div>
       </div>
       <div class="row">
-        <button class="btn" data-act="home">Indietro</button>
+        <button class="btn" data-act="new">Indietro</button>
         <button class="btn primary" id="spawn-go">Conferma e inizia</button>
       </div>
     </div>
@@ -144,8 +157,8 @@
   <!-- BACHECA CHIAVI -->
   <section id="screen-keys" class="screen hidden">
     <div class="panel wide">
-      <h2>Bacheca chiavi · Scegli la volante</h2>
-      <p class="muted">Seleziona il veicolo di servizio. Lo troverai nel parcheggio sul retro della Questura.</p>
+      <h2>Bacheca chiavi · Scegli il veicolo</h2>
+      <p class="muted">Seleziona il veicolo di servizio. Lo troverai nel parcheggio sul retro della sede.</p>
       <div id="car-cards"></div>
       <div class="row"><button class="btn" id="keys-cancel">Annulla</button></div>
     </div>
@@ -164,9 +177,9 @@
   <section id="screen-credits" class="screen hidden">
     <div class="panel narrow">
       <h2>Crediti</h2>
-      <p>Belluno Patrol è un prototipo hobbistico, non ufficiale e senza scopo di lucro.</p>
-      <p class="muted">Motore: Three.js · Audio: WebAudio procedurale · Mappa: layout stilizzato ispirato a Belluno (non usa dati di Google Maps).</p>
-      <p class="muted">Divise, stemmi e livree della Polizia di Stato sono riprodotti solo a scopo dimostrativo/personale: non pubblicare o vendere senza le dovute autorizzazioni.</p>
+      <p>Napoli Emergency è un prototipo hobbistico, non ufficiale e senza scopo di lucro.</p>
+      <p class="muted">Motore: Three.js · Audio: WebAudio procedurale · Mappa: Napoli stilizzata e compressa (non usa dati di Google Maps).</p>
+      <p class="muted">Divise, stemmi e livree di Polizia di Stato, Arma dei Carabinieri, Croce Rossa Italiana e Vigili del Fuoco sono riprodotti solo a scopo personale/dimostrativo: non pubblicare o vendere senza le dovute autorizzazioni.</p>
       <div class="row"><button class="btn primary" data-act="home">Indietro</button></div>
     </div>
   </section>

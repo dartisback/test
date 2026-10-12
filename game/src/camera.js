@@ -59,7 +59,7 @@ export class CameraRig {
     let px = this.pivot.x + back.x * this.curDist;
     let py = this.pivot.y + back.y * this.curDist;
     let pz = this.pivot.z + back.z * this.curDist;
-    py = Math.max(py, 0.35);
+    py = Math.max(py, this.world.groundY(px, pz) + 0.35);
     if (this.shake > 0) {
       const s = this.shake;
       px += (Math.random() - 0.5) * s; py += (Math.random() - 0.5) * s; pz += (Math.random() - 0.5) * s;

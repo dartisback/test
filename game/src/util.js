@@ -137,3 +137,13 @@ export function layer(mat, n) {
   mat.polygonOffsetUnits = -n;
   return mat;
 }
+
+export const smooth = (t) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
+export const distRect = (x, z, r) => {
+  const dx = Math.max(r.x0 - x, 0, x - r.x1), dz = Math.max(r.z0 - z, 0, z - r.z1);
+  return Math.hypot(dx, dz);
+};
+export const hex2rgb = (h) => [((h >> 16) & 255) / 255, ((h >> 8) & 255) / 255, (h & 255) / 255];
+const s2l = (c) => (c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+/** colore esadecimale sRGB -> componenti lineari (per i colori vertice) */
+export const hex2lin = (h) => hex2rgb(h).map(s2l);

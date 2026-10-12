@@ -157,3 +157,22 @@ kbd { background: #1a2745; border: 1px solid #3c4f82; border-bottom-width: 3px; 
 #bigmap { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(4,8,18,.78); }
 #bigmap canvas { max-width: 92vw; max-height: 88vh; border-radius: 12px; border: 1px solid var(--line); }
 .bigmap-hint { position: absolute; bottom: 14px; color: var(--muted); font-size: 13px; }
+
+/* ---------- scelta corpo ---------- */
+#faction-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+.faction-card { text-align: left; color: var(--text); font-family: inherit; cursor: pointer; border: 1px solid var(--line); border-top: 5px solid var(--fc); border-radius: 14px; padding: 18px; background: rgba(255,255,255,.04); transition: .15s; }
+.faction-card:hover { background: rgba(255,255,255,.1); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+.faction-card .fc-icon { font-size: 40px; }
+.faction-card h3 { margin: 8px 0 6px; font-size: 20px; }
+.faction-card p { margin: 0 0 10px; font-size: 14px; color: var(--muted); line-height: 1.45; }
+.fc-meta { font-size: 12px; color: var(--gold); letter-spacing: .06em; }
+/* ---------- HUD extra ---------- */
+#score { margin-top: 4px; font-size: 20px; font-weight: 700; color: var(--gold); }
+#radio { position: absolute; right: 24px; top: 130px; background: rgba(8,14,28,.9); border: 1px solid var(--gold); border-radius: 10px; padding: 12px 16px; font-size: 14px; line-height: 2; min-width: 320px; }
+#radio b { color: var(--gold); letter-spacing: .2em; }
+#radio kbd { margin-right: 8px; }
+#pursuit { position: absolute; left: 50%; top: 24px; transform: translateX(-50%); text-align: center; font-size: 12px; letter-spacing: .3em; color: #ff9a9a; }
+#pursuit .pbar { margin-top: 5px; width: 280px; height: 10px; border-radius: 6px; background: rgba(255,255,255,.15); overflow: hidden; border: 1px solid rgba(255,255,255,.3); }
+#pursuit-bar { height: 100%; width: 0; background: linear-gradient(90deg, #ffb347, #ff3b3b); transition: width .15s; }
+.spawn-grid { grid-template-columns: minmax(0, 760px) 1fr; }
+#spawn-map { aspect-ratio: 760 / 420; }

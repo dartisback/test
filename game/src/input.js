@@ -1,7 +1,7 @@
 import { clamp } from './util.js';
 import { settings } from './settings.js';
 
-const GAME_KEYS = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'ShiftLeft', 'ShiftRight', 'ControlLeft', 'KeyE', 'KeyF', 'KeyQ', 'KeyC', 'KeyH', 'KeyL', 'KeyM', 'KeyV', 'KeyR', 'KeyG', 'Digit1', 'Digit2', 'Digit3', 'Digit0', 'F1', 'F2', 'Tab']);
+const GAME_KEYS = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'ShiftLeft', 'ShiftRight', 'ControlLeft', 'KeyE', 'KeyF', 'KeyQ', 'KeyC', 'KeyH', 'KeyL', 'KeyM', 'KeyV', 'KeyR', 'KeyG', 'KeyX', 'KeyY', 'KeyN', 'Digit1', 'Digit2', 'Digit3', 'Digit0', 'F1', 'F2', 'Tab']);
 
 const dead = (v, d = 0.16) => (Math.abs(v) < d ? 0 : (v - Math.sign(v) * d) / (1 - d));
 

@@ -1,4 +1,4 @@
-const KEY = 'bellunoPatrol.settings.v1';
+const KEY = 'napoliEmergency.settings.v1';
 
 export const DEFAULTS = {
   master: 0.8,

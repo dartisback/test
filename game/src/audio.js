@@ -58,13 +58,13 @@ export class AudioSys {
 
   _spawnSirenVoice(fadeIn) {
     const c = this.ctx, buf = this.sirenBuf, xf = 0.8;
-    const src = c.createBufferSource(); src.buffer = buf;
+    const src = c.createBufferSource(); src.buffer = buf; src.playbackRate.value = this.sirenRate || 1;
     const g = c.createGain();
     const t = c.currentTime;
     g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(1, t + fadeIn);
     src.connect(g); g.connect(this.sirenIn);
     src.start(t);
-    const endAt = t + buf.duration;
+    const endAt = t + buf.duration / (this.sirenRate || 1);
     g.gain.setValueAtTime(1, endAt - xf); g.gain.linearRampToValueAtTime(0.0001, endAt);
     src.stop(endAt + 0.05);
     const v = { src, g, nextAt: endAt - xf };
@@ -105,14 +105,14 @@ export class AudioSys {
     this.o1.start(); this.o2.start();
     this.engineOn = true;
   }
-  setEngine(speedAbs, throttle) {
+  setEngine(speedAbs, throttle, pitch = 1) {
     if (!this.ctx || !this.engineOn) return;
     const gears = [0, 9, 17, 27, 38, 50];
     let g = 0;
     while (g < gears.length - 2 && speedAbs > gears[g + 1]) g++;
     const frac = Math.min(1, (speedAbs - gears[g]) / (gears[g + 1] - gears[g]));
     const rpm = 0.12 + frac * 0.75 + throttle * 0.1;
-    const f = 38 + rpm * 120;
+    const f = (38 + rpm * 120) * pitch;
     const t = this.ctx.currentTime;
     this.o1.frequency.setTargetAtTime(f, t, 0.05);
     this.o2.frequency.setTargetAtTime(f * 0.5, t, 0.05);
@@ -129,8 +129,9 @@ export class AudioSys {
   }
 
   // ---------- sirena ----------
-  setSiren(on) {
+  setSiren(on, rate = 1) {
     if (!this.ctx) return;
+    this.sirenRate = rate;
     if (on && !this.sirenOn) {
       this.sirenOn = true;
       if (this.sirenBuf) this._startSampleSiren();
@@ -175,6 +176,21 @@ export class AudioSys {
     } else if (!on && this.hornOn) {
       this.ho.forEach((o) => { try { o.stop(); } catch (e) { /* ignore */ } });
       this.hornOn = false;
+    }
+  }
+
+  // ---------- getto d'acqua ----------
+  hiss(on) {
+    if (!this.ctx) return;
+    if (on && !this.hissOn) {
+      const c = this.ctx, src = c.createBufferSource(); src.buffer = this.noise; src.loop = true;
+      const f = c.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 2400; f.Q.value = 0.5;
+      const g = c.createGain(); g.gain.value = 0.0; g.gain.setTargetAtTime(0.35, c.currentTime, 0.05);
+      src.connect(f); f.connect(g); g.connect(this.sfx); src.start();
+      this.hissNodes = { src, g }; this.hissOn = true;
+    } else if (!on && this.hissOn) {
+      const { src, g } = this.hissNodes; g.gain.setTargetAtTime(0, this.ctx.currentTime, 0.05);
+      setTimeout(() => { try { src.stop(); } catch (e) { /* ignore */ } }, 250); this.hissOn = false;
     }
   }
 

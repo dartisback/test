@@ -5,13 +5,25 @@ import { makeCanvas } from './textures.js';
 
 const M = (color, rough = 0.85, metal = 0) => new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: metal });
 
-function backTextTexture() {
+const backCache = {};
+function backTextTexture(text = 'POLIZIA') {
+  if (backCache[text]) return backCache[text];
   const c = makeCanvas(512, 128), g = c.getContext('2d');
   g.clearRect(0, 0, 512, 128);
-  g.fillStyle = '#f4f4f4'; g.font = 'bold 92px Arial'; g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.fillText('POLIZIA', 256, 66, 500);
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  g.fillStyle = '#f4f4f4'; g.font = `bold ${text.length > 9 ? 56 : 92}px Arial`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(text, 256, 66, 500);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; backCache[text] = t; return t;
 }
+
+const crossTex = (() => { let t; return () => (t || (t = (() => { const c = makeCanvas(64, 64), g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, 64, 64); g.fillStyle = '#d0202a'; g.fillRect(24, 8, 16, 48); g.fillRect(8, 24, 48, 16); const x = new THREE.CanvasTexture(c); x.colorSpace = THREE.SRGBColorSpace; return x; })())); })();
+
+const OUTFITS = {
+  civil: { shirt: 0x56667d, pants: 0x2c3e5e, shoe: 0xeeeeee },
+  polizia: { shirt: 0x131c36, pants: 0x0e1526, shoe: 0x0c0c0e, belt: 0x111111, holster: true, text: 'POLIZIA', hat: 'cap', hatColor: 0x141d38, band: 0xb3202a, pipe: 0xb3202a },
+  carabinieri: { shirt: 0x0e1730, pants: 0x0a0f1e, shoe: 0x0c0c0e, belt: 0xe8e8e8, holster: true, text: 'CARABINIERI', hat: 'cap', hatColor: 0x0e1730, band: 0xc4202a, pipe: 0xc4202a },
+  croce_rossa: { shirt: 0xd0202a, pants: 0x1d2b4a, shoe: 0x15171a, text: 'CROCE ROSSA', pipe: 0xf0f0f0, reflect: true },
+  vvf: { shirt: 0x8a1d16, pants: 0x141a2a, shoe: 0x111111, belt: 0x222222, text: 'VIGILI DEL FUOCO', hat: 'helmet', hatColor: 0xf2f2f2, pipe: 0xe0c020, reflect: true },
+};
 
 /**
  * Personaggio umanoide procedurale (≈1.78 m) con animazioni procedurali:
@@ -85,8 +97,14 @@ export function createCharacter() {
   const capMat = M(0x141d38, 0.8);
   const dome = mesh(new THREE.SphereGeometry(0.118, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.5), capMat, 0, 0.03, 0); dome.scale.set(0.96, 0.95, 1.06); capGroup.add(dome);
   const visor = mesh(new THREE.BoxGeometry(0.17, 0.012, 0.09), capMat, 0, 0.035, 0.115); visor.rotation.x = 0.12; capGroup.add(visor);
-  const capBand = mesh(new THREE.CylinderGeometry(0.119, 0.119, 0.014, 18, 1, true), red, 0, 0.034, 0); capBand.scale.set(0.97, 1, 1.07); capGroup.add(capBand);
+  const capBand = mesh(new THREE.CylinderGeometry(0.119, 0.119, 0.014, 18, 1, true), M(0xb3202a, 0.6), 0, 0.034, 0); capBand.scale.set(0.97, 1, 1.07); capGroup.add(capBand);
   const capBadge = mesh(new THREE.CircleGeometry(0.022, 10), M(0xd9b24a, 0.4, 0.5), 0, 0.075, 0.121); capGroup.add(capBadge);
+  const helmetGroup = new THREE.Group(); helmetGroup.visible = false; head.add(helmetGroup);
+  const helmetMat = M(0xf2f2f2, 0.35, 0.1);
+  const helm = mesh(new THREE.SphereGeometry(0.128, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.62), helmetMat, 0, 0.02, 0); helm.scale.set(0.98, 1.0, 1.1); helmetGroup.add(helm);
+  const helmBrim = mesh(new THREE.BoxGeometry(0.28, 0.014, 0.11), helmetMat, 0, -0.025, 0.12); helmetGroup.add(helmBrim);
+  const helmBack = mesh(new THREE.BoxGeometry(0.26, 0.02, 0.1), helmetMat, 0, -0.04, -0.12); helmBack.rotation.x = 0.4; helmetGroup.add(helmBack);
+  const helmStripe = mesh(new THREE.BoxGeometry(0.03, 0.02, 0.26), M(0xd12a1e, 0.5), 0, 0.15, 0); helmetGroup.add(helmStripe);
 
   // ---------- braccia ----------
   const arm = (sx) => {
@@ -103,7 +121,7 @@ export function createCharacter() {
   const armL = arm(-1), armR = arm(1);
 
   // ---------- armi ----------
-  const weapons = { pistol: new THREE.Group(), taser: new THREE.Group(), baton: new THREE.Group() };
+  const weapons = { pistol: new THREE.Group(), taser: new THREE.Group(), baton: new THREE.Group(), medkit: new THREE.Group(), hose: new THREE.Group() };
   {
     const slide = mesh(new THREE.BoxGeometry(0.032, 0.2, 0.036), M(0x25282c, 0.35, 0.8), 0, -0.1, 0.035);
     const grip = mesh(new THREE.BoxGeometry(0.03, 0.045, 0.1), M(0x111111, 0.7), 0, 0.01, -0.02); grip.rotation.x = 0.2;
@@ -118,6 +136,17 @@ export function createCharacter() {
     const bt = mesh(new THREE.CylinderGeometry(0.018, 0.015, 0.52, 8), M(0x15171a, 0.5, 0.2), 0, -0.2, 0);
     const bg = mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.12, 8), M(0x0a0a0a, 0.9), 0, 0.02, 0);
     weapons.baton.add(bt, bg);
+  }
+  {
+    const bag = mesh(new THREE.BoxGeometry(0.3, 0.2, 0.12), M(0xd0202a, 0.6), 0, -0.2, 0);
+    const cr = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.12), new THREE.MeshBasicMaterial({ map: crossTex() })); cr.position.set(0, -0.2, 0.062);
+    const crB = cr.clone(); crB.position.z = -0.062; crB.rotation.y = Math.PI;
+    weapons.medkit.add(bag, cr, crB);
+    const pipe = mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.4, 10), M(0xb08a2a, 0.3, 0.8), 0, -0.2, 0.0);
+    const tip = mesh(new THREE.ConeGeometry(0.04, 0.12, 10), M(0xb08a2a, 0.3, 0.8), 0, -0.44, 0); tip.rotation.x = Math.PI;
+    const grip = mesh(new THREE.BoxGeometry(0.03, 0.12, 0.05), M(0x15171a, 0.7), 0, -0.05, 0.05);
+    weapons.hose.add(pipe, tip, grip);
+    weapons.hose.userData.muzzle = new THREE.Vector3(0, -0.5, 0);
   }
   for (const k of Object.keys(weapons)) { weapons[k].visible = false; armR.hand.add(weapons[k]); }
 
@@ -136,17 +165,23 @@ export function createCharacter() {
     seatedK: 0,
     muzzleWorld: new THREE.Vector3(),
 
+    look: { skin: 0xd4a283, hair: 0x2a1f18, shirt: 0x56667d, pants: 0x2c3e5e, shoe: 0xeeeeee },
+    setLook(l) { Object.assign(this.look, l); skin.color.set(this.look.skin); hairMat.color.set(this.look.hair); if (this.outfit === 'civil') this.setOutfit('civil'); },
     setOutfit(name) {
+      if (name === 'uniform') name = 'polizia';
       this.outfit = name;
-      const u = name === 'uniform';
-      shirt.color.set(u ? 0x131c36 : 0x56667d);
-      pants.color.set(u ? 0x0e1526 : 0x2c3e5e);
-      shoe.color.set(u ? 0x0c0c0e : 0xeeeeee);
-      beltMesh.visible = u; radio.visible = u; patch.visible = u; backTxt.visible = u;
-      pipes.forEach((p) => (p.visible = u));
-      armL.pipe.visible = armR.pipe.visible = u;
-      legL.stripe.visible = legR.stripe.visible = u;
-      capGroup.visible = u; hair.visible = !u;
+      const o = OUTFITS[name] || OUTFITS.civil;
+      const civ = name === 'civil';
+      shirt.color.set(civ ? this.look.shirt : o.shirt); pants.color.set(civ ? this.look.pants : o.pants); shoe.color.set(civ ? this.look.shoe : o.shoe);
+      const u = !civ;
+      beltMesh.visible = !!o.belt; if (o.belt) belt.color.set(o.belt);
+      radio.visible = u && name !== 'croce_rossa'; patch.visible = u; backTxt.visible = !!o.text;
+      if (o.text) backTxt.material.map = backTextTexture(o.text);
+      red.color.set(o.pipe || 0xb3202a);
+      pipes.forEach((p) => (p.visible = u)); armL.pipe.visible = armR.pipe.visible = u; legL.stripe.visible = legR.stripe.visible = u && !!o.pipe && name !== 'croce_rossa';
+      capGroup.visible = o.hat === 'cap'; helmetGroup.visible = o.hat === 'helmet'; hair.visible = !o.hat;
+      if (o.hat === 'cap') { capMat.color.set(o.hatColor); capBand.material.color.set(o.band || 0xb3202a); }
+      this.holsterOK = !!o.holster;
       this.updateHolster();
     },
     setWeapon(type) {
@@ -155,7 +190,7 @@ export function createCharacter() {
       this.updateHolster();
     },
     setSidearm(has) { this.hasSidearm = has; this.updateHolster(); },
-    updateHolster() { holster.visible = this.outfit === 'uniform' && this.hasSidearm; },
+    updateHolster() { holster.visible = !!this.holsterOK && this.hasSidearm; },
     setFemale(f) { ponytail.visible = f; },
     setSeated(v) { this.seated = v; },
     fire() { this.kick = 1; },
@@ -208,7 +243,7 @@ export function createCharacter() {
       armL.shoulder.rotation.z = 0.05 + (1 - moving) * 0.02;
       armR.shoulder.rotation.z = -0.05 - (1 - moving) * 0.02;
 
-      const hasGun = this.weapon === 'pistol' || this.weapon === 'taser';
+      const hasGun = this.weapon === 'pistol' || this.weapon === 'taser' || this.weapon === 'hose';
       if (hasGun) {
         // posa "low ready" o in mira a due mani
         const k = s.aim ? 1 : 0;
@@ -235,6 +270,9 @@ export function createCharacter() {
       }
       this.kick = Math.max(0, this.kick - dt * 8);
 
+      if (s.handsUp) { armL.shoulder.rotation.set(-2.7, 0, 0.35); armR.shoulder.rotation.set(-2.7, 0, -0.35); armL.elbow.rotation.x = -0.35; armR.elbow.rotation.x = -0.35; }
+      if (s.cuffed) { armL.shoulder.rotation.set(0.5, 0, 0.45); armR.shoulder.rotation.set(0.5, 0, -0.45); armL.elbow.rotation.x = -0.4; armR.elbow.rotation.x = -0.4; spine.rotation.x += 0.1; }
+      if (s.fight) { const f = Math.sin(performance.now() / 120 + (s.fight || 0)); armL.shoulder.rotation.set(-1.4 - f * 0.5, 0, 0.2); armR.shoulder.rotation.set(-1.4 + f * 0.5, 0, -0.2); armL.elbow.rotation.x = -0.9; armR.elbow.rotation.x = -0.9; spine.rotation.y = f * 0.3; }
       // seduto: mani sul volante
       if (sk > 0.01) {
         armL.shoulder.rotation.x = lerp(armL.shoulder.rotation.x, -1.15, sk); armR.shoulder.rotation.x = lerp(armR.shoulder.rotation.x, -1.15, sk);
