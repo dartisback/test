@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Belluno Patrol</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="view"></canvas>
+
+<!-- ===================== HUD ===================== -->
+<div id="hud" class="hidden">
+  <div id="objective">
+    <div class="obj-title">OBIETTIVO</div>
+    <div id="obj-text">—</div>
+    <div id="obj-sub"></div>
+  </div>
+  <div id="topright">
+    <div id="clock">15:30</div>
+    <div id="duty-badge" class="hidden">● IN SERVIZIO</div>
+    <div id="calls"></div>
+    <div id="fps"></div>
+  </div>
+  <div id="minimap-wrap">
+    <canvas id="minimap" width="240" height="240"></canvas>
+    <div id="street">—</div>
+  </div>
+  <div id="waypoints"></div>
+  <div id="crosshair"></div>
+  <div id="prompt" class="hidden"></div>
+  <div id="toasts"></div>
+  <div id="speedo" class="hidden">
+    <div id="speed-val">0</div><div class="unit">km/h</div>
+    <div id="car-name"></div>
+    <div id="siren-ind">SIRENA</div>
+  </div>
+  <div id="weapon-box" class="hidden"></div>
+  <div id="help-panel" class="hidden"></div>
+  <div id="fade"></div>
+  <div id="bigmap" class="hidden"><canvas id="bigmap-canvas" width="860" height="720"></canvas><div class="bigmap-hint">M per chiudere</div></div>
+</div>
+
+<!-- ===================== SCHERMATE ===================== -->
+<div id="screens">
+
+  <!-- HOME -->
+  <section id="screen-home" class="screen">
+    <div class="lights"><i></i><i></i></div>
+    <div class="home-card">
+      <div class="logo">
+        <div class="logo-top">POLIZIA DI STATO · SIMULATORE</div>
+        <h1>BELLUNO <span>PATROL</span></h1>
+        <div class="logo-sub">Singleplayer · Terza persona · Dolomiti, Veneto</div>
+      </div>
+      <nav class="menu">
+        <button class="btn primary" data-act="new">Nuova partita</button>
+        <button class="btn" data-act="settings">Impostazioni</button>
+        <button class="btn" data-act="admin">Menu Admin</button>
+        <button class="btn" data-act="controls">Comandi</button>
+        <button class="btn" data-act="credits">Crediti</button>
+      </nav>
+      <div class="home-foot">v0.1 prototipo · Layout stilizzato del quartiere Questura di Belluno</div>
+    </div>
+  </section>
+
+  <!-- SELEZIONE SPAWN -->
+  <section id="screen-spawn" class="screen hidden">
+    <div class="panel wide">
+      <h2>Scegli dove iniziare</h2>
+      <p class="muted">Sei un cittadino di Belluno. Scegli il punto di partenza sulla mappa o dalla lista.</p>
+      <div class="spawn-grid">
+        <canvas id="spawn-map" width="620" height="540"></canvas>
+        <div class="spawn-side">
+          <div id="spawn-list"></div>
+          <div id="spawn-info" class="muted"></div>
+          <label class="check"><input type="checkbox" id="spawn-duty"> Inizia già in servizio (divisa + armi + volante)</label>
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn" data-act="home">Indietro</button>
+        <button class="btn primary" id="spawn-go">Conferma e inizia</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CARICAMENTO -->
+  <section id="screen-loading" class="screen hidden">
+    <div class="loading-box">
+      <h1>BELLUNO <span>PATROL</span></h1>
+      <div id="loading-text">Caricamento…</div>
+      <div class="bar"><div id="loading-bar"></div></div>
+      <div id="loading-tip" class="muted"></div>
+    </div>
+  </section>
+
+  <!-- CLICCA PER GIOCARE -->
+  <section id="screen-click" class="screen hidden">
+    <div class="panel narrow center">
+      <h2>Tutto pronto</h2>
+      <p class="muted" id="click-sub">Clicca per entrare in gioco. ESC per mettere in pausa.</p>
+      <button class="btn primary big" id="click-go">▶ Gioca</button>
+      <div id="click-help"></div>
+    </div>
+  </section>
+
+  <!-- IMPOSTAZIONI -->
+  <section id="screen-settings" class="screen hidden">
+    <div class="panel wide">
+      <h2>Impostazioni</h2>
+      <div class="tabs" id="settings-tabs"></div>
+      <div id="settings-body"></div>
+      <div class="row">
+        <button class="btn" id="settings-reset">Ripristina predefiniti</button>
+        <button class="btn primary" id="settings-back">Indietro</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="screen-admin" class="screen hidden">
+    <div class="panel wide">
+      <h2>Menu Admin <span class="tag">DEBUG</span></h2>
+      <p class="muted">Strumenti per sviluppo e test. In partita si apre anche con F1.</p>
+      <div id="admin-body"></div>
+      <div class="row"><button class="btn primary" id="admin-back">Chiudi</button></div>
+    </div>
+  </section>
+
+  <!-- PAUSA -->
+  <section id="screen-pause" class="screen hidden">
+    <div class="panel narrow center">
+      <h2>Pausa</h2>
+      <nav class="menu">
+        <button class="btn primary" data-act="resume">Riprendi</button>
+        <button class="btn" data-act="settings">Impostazioni</button>
+        <button class="btn" data-act="admin">Menu Admin</button>
+        <button class="btn" data-act="controls">Comandi</button>
+        <button class="btn danger" data-act="quit">Torna al menu principale</button>
+      </nav>
+    </div>
+  </section>
+
+  <!-- BACHECA CHIAVI -->
+  <section id="screen-keys" class="screen hidden">
+    <div class="panel wide">
+      <h2>Bacheca chiavi · Scegli la volante</h2>
+      <p class="muted">Seleziona il veicolo di servizio. Lo troverai nel parcheggio sul retro della Questura.</p>
+      <div id="car-cards"></div>
+      <div class="row"><button class="btn" id="keys-cancel">Annulla</button></div>
+    </div>
+  </section>
+
+  <!-- COMANDI -->
+  <section id="screen-controls" class="screen hidden">
+    <div class="panel wide">
+      <h2>Comandi</h2>
+      <div id="controls-body"></div>
+      <div class="row"><button class="btn primary" id="controls-back">Indietro</button></div>
+    </div>
+  </section>
+
+  <!-- CREDITI -->
+  <section id="screen-credits" class="screen hidden">
+    <div class="panel narrow">
+      <h2>Crediti</h2>
+      <p>Belluno Patrol è un prototipo hobbistico, non ufficiale e senza scopo di lucro.</p>
+      <p class="muted">Motore: Three.js · Audio: WebAudio procedurale · Mappa: layout stilizzato ispirato a Belluno (non usa dati di Google Maps).</p>
+      <p class="muted">Divise, stemmi e livree della Polizia di Stato sono riprodotti solo a scopo dimostrativo/personale: non pubblicare o vendere senza le dovute autorizzazioni.</p>
+      <div class="row"><button class="btn primary" data-act="home">Indietro</button></div>
+    </div>
+  </section>
+</div>
+
+<script src="dist/game.js"></script>
+</body>
+</html>

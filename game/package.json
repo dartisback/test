@@ -1,0 +1,17 @@
+{
+  "name": "belluno-patrol",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Belluno Patrol - prototipo singleplayer in terza persona ambientato a Belluno",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --watch",
+    "start": "node serve.mjs"
+  },
+  "dependencies": {
+    "three": "0.160.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.19.12"
+  }
+}
