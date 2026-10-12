@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { makeRng, hex2lin } from './util.js';
-import { FLOOR_H, heightAt } from './napoli.js';
+import { FLOOR_H, heightAt, VESUVIO } from './napoli.js';
 import * as T from './textures.js';
 
 const D = new THREE.Object3D();
@@ -229,10 +229,10 @@ export function buildLandmarks(world) {
     const sm = new THREE.MeshBasicMaterial({ color: 0xcfd2d6, transparent: true, opacity: 0.35, fog: true, depthWrite: false });
     const g = new THREE.Group();
     for (let i = 0; i < 9; i++) { const s = new THREE.Mesh(new THREE.SphereGeometry(30 + i * 9, 10, 8), sm); s.position.set(i * 14, i * 38, -i * 6); g.add(s); }
-    g.position.set(1750, gY(1750, -720) + 20, -720);
+    g.position.set(VESUVIO.x, gY(VESUVIO.x, VESUVIO.z) + 20, VESUVIO.z);
     root.add(g);
     // cratere scuro
     const crater = new THREE.Mesh(new THREE.CylinderGeometry(70, 90, 8, 24), new THREE.MeshStandardMaterial({ color: 0x2a2523, roughness: 1 }));
-    crater.position.set(1750, gY(1750, -720) - 6, -720); root.add(crater);
+    crater.position.set(VESUVIO.x, gY(VESUVIO.x, VESUVIO.z) - 6, VESUVIO.z); root.add(crater);
   }
 }

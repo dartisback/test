@@ -86,10 +86,15 @@ export function createCharacter() {
   const head = new THREE.Group(); head.position.y = 0.76; spine.add(head);
   const skull = mesh(new THREE.SphereGeometry(0.105, 20, 16), skin, 0, 0, 0); skull.scale.set(0.92, 1.12, 1.0); head.add(skull);
   const nose = mesh(new THREE.ConeGeometry(0.018, 0.04, 6), skin, 0, -0.01, 0.105); nose.rotation.x = Math.PI / 2; head.add(nose);
+  const eyeW = M(0xf4f4f0, 0.3), pupil = M(0x1a1410, 0.3), brow = M(0x2a1f18, 0.9), lip = M(0x9a4a44, 0.6);
   for (const sx of [-1, 1]) {
-    head.add(mesh(new THREE.SphereGeometry(0.012, 8, 6), M(0x111111), sx * 0.04, 0.02, 0.095));
+    head.add(mesh(new THREE.SphereGeometry(0.016, 10, 8), eyeW, sx * 0.041, 0.022, 0.093));
+    head.add(mesh(new THREE.SphereGeometry(0.0085, 8, 6), pupil, sx * 0.041, 0.022, 0.106));
+    const b = mesh(new THREE.BoxGeometry(0.044, 0.008, 0.01), brow, sx * 0.041, 0.05, 0.1); b.rotation.z = sx * -0.15; head.add(b);
     head.add(mesh(new THREE.SphereGeometry(0.02, 8, 6), skin, sx * 0.1, -0.005, 0));
   }
+  head.add(mesh(new THREE.BoxGeometry(0.05, 0.007, 0.012), lip, 0, -0.055, 0.097));
+  head.add(mesh(new THREE.BoxGeometry(0.036, 0.005, 0.012), lip, 0, -0.068, 0.095));
   const hair = mesh(new THREE.SphereGeometry(0.11, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.55), hairMat, 0, 0.012, -0.005); hair.scale.set(0.95, 1.15, 1.05); head.add(hair);
   const ponytail = mesh(new THREE.CapsuleGeometry(0.025, 0.1, 3, 6), hairMat, 0, -0.04, -0.12); ponytail.visible = false; head.add(ponytail);
   // cappello della divisa

@@ -7,7 +7,7 @@ const PANTS = [0x2c3e5e, 0x1b1b1f, 0x4b4033, 0x6a6a6e, 0x3d5a80, 0x2a2a2a, 0xc2b
 const SKINS = [0xf1c8a5, 0xd9a283, 0xb77c58, 0x8a5a3c, 0xe8b894, 0x6b4430];
 const HAIR = [0x1b130e, 0x3a2a1c, 0x6b4a2a, 0xb08a4a, 0x9a9a9a, 0x0d0d0d, 0x7a3a1a];
 
-const M = new THREE.Matrix4(), R = new THREE.Matrix4(), P = new THREE.Matrix4(), Q = new THREE.Quaternion(), E = new THREE.Euler(), V = new THREE.Vector3(), S1 = new THREE.Vector3(1, 1, 1);
+const M = new THREE.Matrix4(), R = new THREE.Matrix4(), P = new THREE.Matrix4(), Q = new THREE.Quaternion(), E = new THREE.Euler(), V = new THREE.Vector3(), S1 = new THREE.Vector3(1, 1, 1), SV = new THREE.Vector3(1, 1, 1);
 
 /** Folla di cittadini istanziati: ~250 pedoni sui marciapiedi, animazione a arti. */
 export class Crowd {
@@ -155,8 +155,8 @@ export class Crowd {
       // radice
       E.set(down ? -Math.PI / 2 * p.fall : 0, p.yaw, 0, 'YXZ'); Q.setFromEuler(E);
       V.set(p.x, p.y + (down ? 0.2 * p.fall : 0), p.z);
-      const s = p.scale; const sv = new THREE.Vector3(s, s, s);
-      M.compose(V, Q, sv);
+      SV.setScalar(p.scale);
+      M.compose(V, Q, SV);
       const put = (mesh, lx, ly, lz, rx = 0, cy = 0) => {
         // pivot (lx,ly,lz), rotazione rx attorno a x, centro del solido a cy sotto il pivot
         E.set(rx, 0, 0); Q.setFromEuler(E);

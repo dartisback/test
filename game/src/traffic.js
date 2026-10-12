@@ -173,7 +173,7 @@ export class Traffic {
   render() {
     const counts = { sedan: 0, hatch: 0, van: 0 };
     const M = new THREE.Matrix4(), Q = new THREE.Quaternion(), E = new THREE.Euler(), V = new THREE.Vector3(), S = new THREE.Vector3(1, 1, 1);
-    const col = new THREE.Color();
+    const col = new THREE.Color(), P1 = new THREE.Matrix4(), P2 = new THREE.Matrix4(), V2 = new THREE.Vector3();
     let hi = 0;
     const night = this.world.nightAmt || 0;
     for (const c of this.cars) {
@@ -183,8 +183,8 @@ export class Traffic {
       const d = this.dims[c.kind];
       const lh = c.kind === 'van' ? 0.95 : 0.76;
       for (const sx of [-0.62, 0.62]) {
-        V.set(sx, lh, d.L / 2 - 0.05).applyMatrix4(M); const P = new THREE.Matrix4().compose(V, Q, S); this.headM.setMatrixAt(hi, P);
-        V.set(sx, lh + 0.1, -d.L / 2 + 0.03).applyMatrix4(M); const P2 = new THREE.Matrix4().compose(V, Q, S); this.tailM.setMatrixAt(hi, P2); hi++;
+        V2.set(sx, lh, d.L / 2 - 0.05).applyMatrix4(M); P1.compose(V2, Q, S); this.headM.setMatrixAt(hi, P1);
+        V2.set(sx, lh + 0.1, -d.L / 2 + 0.03).applyMatrix4(M); P2.compose(V2, Q, S); this.tailM.setMatrixAt(hi, P2); hi++;
       }
     }
     for (const k of this.kinds) { this.meshes[k].count = counts[k]; this.meshes[k].instanceMatrix.needsUpdate = true; if (this.meshes[k].instanceColor) this.meshes[k].instanceColor.needsUpdate = true; }

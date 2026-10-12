@@ -211,7 +211,7 @@ export class UI {
   _buildControls() {
     const html = CONTROLS.map(([title, rows]) => `<div><h3>${title}</h3>${rows.map(([k, d]) => `<div class="k"><span>${d}</span><kbd>${k}</kbd></div>`).join('')}</div>`).join('');
     $('controls-body').innerHTML = `<div class="ctrl-grid">${html}</div>`;
-    $('help-panel').innerHTML = '<b>COMANDI RAPIDI</b><br>WASD muovi · Shift corri · Spazio salta · C accovacciati<br>E interagisci · F auto · 1/2/3 armi · M mappa<br>Q sirena · H clacson · L fari · F1 admin · F2 chiudi';
+    $('help-panel').innerHTML = '<b>COMANDI RAPIDI</b><br>WASD muovi · Shift corri · Spazio salta · C accovacciati<br>E interagisci · F veicolo · 1/2/3 equipaggiamento · M mappa<br>Q sirena · H clacson · L fari · X «Fermo!» · <b>R radio</b><br>Y/N accetta/rifiuta chiamata · F1 admin · F2 chiudi';
     $('click-help').innerHTML = '<p class="muted" style="margin-top:18px">WASD muovi · Mouse guarda · Shift corri · Spazio salta · C accovacciati · E interagisci · F auto</p>';
   }
 

@@ -239,7 +239,8 @@ export class World {
         c = [lerp(c[0], 0.14, k2), lerp(c[1], 0.12, k2), lerp(c[2], 0.11, k2)];
       }
       if (slope > 0.55) { const k = smooth((slope - 0.55) / 0.5); c = [lerp(c[0], 0.36, k), lerp(c[1], 0.34, k), lerp(c[2], 0.3, k)]; }
-      if (z > -34) { const k = smooth((z + 34) / 30); c = [lerp(c[0], 0.62, k), lerp(c[1], 0.54, k), lerp(c[2], 0.35, k)]; }
+      if (z > -16) { const k = smooth((z + 16) / 12); c = [lerp(c[0], 0.5, k), lerp(c[1], 0.47, k), lerp(c[2], 0.4, k)]; }
+      if (z > -3) { const k = smooth((z + 3) / 6); c = [lerp(c[0], 0.66, k), lerp(c[1], 0.58, k), lerp(c[2], 0.38, k)]; }
       if (z > 6) { const k = smooth((z - 6) / 8); c = [lerp(c[0], 0.3, k), lerp(c[1], 0.29, k), lerp(c[2], 0.27, k)]; }
       return c;
     };
@@ -408,8 +409,7 @@ export class World {
       b.top = top + ph;
     }
     this.grid.add({ x0: b.x0, x1: b.x1, z0: b.z0, z1: b.z1, y0: bottom, y1: b.top });
-    if (b.mural !== undefined && b.face && !b.muralDone) this.addMural(b, b.mural, 0.0);
-    if (b.name && b.face) this.signBuildings.push(b);
+    if (b.mural !== undefined && b.face && !b.muralDone) this.addMural(b, b.mural, b.muralBig ? 8 : 0.0, b.muralBig ? { h: 24, w: 12 } : {});
     return b;
   }
 

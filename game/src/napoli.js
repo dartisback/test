@@ -2,7 +2,7 @@
 // Mappa COMPRESSA e stilizzata: x = est, z = sud, il mare è a z > 0.
 import { makeRng, clamp, lerp, smooth, distRect } from './util.js';
 
-export const WORLD = { x0: -1400, x1: 2500, z0: -1700, z1: 120 };
+export const WORLD = { x0: -1400, x1: 2800, z0: -2050, z1: 120 };
 export const FLOOR_H = 3.2;
 
 // ----------------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ export const HQ_RECTS = FACTION_IDS.map((id) => hqRect(FACTIONS[id]));
 const plat = (t, k = 2.4) => smooth(clamp(t * k, 0, 1)); // profilo a "altopiano"
 const bump = (x, z, cx, cz, rx, rz, A, k = 2.4) => A * plat(1 - Math.hypot((x - cx) / rx, (z - cz) / rz), k);
 
-export const VESUVIO = { x: 1750, z: -720, R: 1150, H: 440 };
+export const VESUVIO = { x: 1950, z: -1250, R: 1050, H: 440 };
 
 function rawHeight(x, z) {
   let h = 0;
@@ -65,7 +65,7 @@ function rawHeight(x, z) {
   const dv = Math.hypot(x - VESUVIO.x, z - VESUVIO.z);
   if (dv < VESUVIO.R) {
     const t = 1 - dv / VESUVIO.R;
-    h += VESUVIO.H * Math.pow(t, 1.55);
+    h += VESUVIO.H * Math.pow(t, 2.0);
     if (dv < 110) h -= 46 * smooth(1 - dv / 110);  // cratere
   }
   return h;
@@ -379,6 +379,17 @@ export function generateCity() {
     if (st.murals && b.face && rnd() < st.murals && b.h > 12 && (b.x1 - b.x0) > 9 && (b.z1 - b.z0) > 9) b.mural = rnd.int(0, 4);
   }
 
+  // murale di Diego: grande, sul palazzo più vicino al cuore dei Quartieri Spagnoli
+  {
+    let best = null, bd = 1e9;
+    for (const b of C.buildings) {
+      if (b.district !== 'vicoli' || !b.face || b.h < 18 || b.x1 - b.x0 < 9 || b.z1 - b.z0 < 9) continue;
+      const d = Math.hypot((b.x0 + b.x1) / 2 + 200, (b.z0 + b.z1) / 2 + 335);
+      if (d < bd) { bd = d; best = b; }
+    }
+    if (best) { best.mural = 0; best.muralBig = true; best.name = 'Murale di Diego'; best.noSign = true; }
+  }
+
   // ---- nomi ai negozi / edifici ----
   const named = [
     ['Ospedale Cardarelli', -560, -560, 6, true], ['Ospedale del Mare', 1240, -230, 5, true],
@@ -395,7 +406,7 @@ export function generateCity() {
     { id: 'sgt', name: 'San Giovanni a Teduccio', x: 1250, z: -200, icon: 'building' },
     { id: 'torre', name: 'Torre del Greco', x: 1850, z: -210, icon: 'building' },
     { id: 'vicoli', name: 'Quartieri Spagnoli', x: -200, z: -335, icon: 'building' },
-    { id: 'vesuvio', name: 'Vesuvio', x: 1750, z: -720, icon: 'mountain' },
+    { id: 'vesuvio', name: 'Vesuvio', x: 1950, z: -1250, icon: 'mountain' },
     { id: 'ospedale1', name: 'Ospedale Cardarelli', x: -520, z: -520, icon: 'hospital' },
     { id: 'ospedale2', name: 'Ospedale del Mare', x: 1160, z: -170, icon: 'hospital' },
   ];

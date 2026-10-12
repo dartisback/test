@@ -230,8 +230,8 @@ export function liveryTexture(kind = 'polizia') {
     g.fillStyle = '#12306e'; g.font = 'bold 92px Arial'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('CARABINIERI', 520, 124);
   } else if (kind === 'ambulanza') {
     g.fillStyle = '#d9202a'; g.fillRect(0, 150, W, 34); g.fillStyle = '#f08a1b'; g.fillRect(0, 190, W, 12);
-    g.fillStyle = '#d9202a'; g.font = 'bold 74px Arial'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('CROCE ROSSA ITALIANA', 560, 86);
-    g.fillStyle = '#d9202a'; g.fillRect(100, 40, 30, 90); g.fillRect(70, 70, 90, 30);
+    g.fillStyle = '#d9202a'; g.font = 'bold 66px Arial'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('CROCE ROSSA ITALIANA', 610, 86);
+    g.fillStyle = '#d9202a'; g.fillRect(68, 40, 30, 90); g.fillRect(38, 70, 90, 30);
     g.fillStyle = '#d9202a'; g.font = 'bold 46px Arial'; g.fillText('AMBULANZA', 850, 214);
   } else { // vvf
     g.fillStyle = '#f4f4f4'; g.fillRect(0, 20, W, 8); g.fillRect(0, 226, W, 8);
