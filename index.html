@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pattuglia 3D</title>
+<script src="https://cdn.jsdelivr.net/npm/cesium@1.119.0/Build/Cesium/Cesium.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/cesium@1.119.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+<style>
+  html, body, #app { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: system-ui, sans-serif; }
+  #hud { position: fixed; left: 12px; top: 12px; color: #fff; background: rgba(0,0,0,.55); padding: 8px 12px; border-radius: 8px; font-size: 14px; line-height: 1.5; }
+  #bar { position: fixed; inset: auto 12px 12px 12px; color: #fff; background: rgba(0,0,0,.55); padding: 8px 12px; border-radius: 8px; font-size: 13px; }
+  #banner { position: fixed; inset: 40% 0 auto 0; text-align: center; color: #fff; font-size: 36px; font-weight: 700; text-shadow: 0 2px 8px #000; display: none; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="hud"></div>
+<div id="bar">W/S accelera/frena · A/D sterza · SPAZIO freno a mano · L sirena · Insegui il sospetto (punto rosso) e restagli vicino per 3 secondi</div>
+<div id="banner"></div>
+<script>
+// Chiave Google Maps Platform (Map Tiles API abilitata): ?key=... nell'URL oppure inserita al prompt.
+let key = new URLSearchParams(location.search).get('key');
+try { key = key || localStorage.getItem('gmaps_key'); } catch (e) {}
+if (!key) key = prompt('Inserisci la tua chiave Google Maps (Map Tiles API). Lascia vuoto per la mappa piatta OpenStreetMap:') || '';
+try { if (key) localStorage.setItem('gmaps_key', key); } catch (e) {}
+
+const viewer = new Cesium.Viewer('app', {
+  baseLayer: key ? false : new Cesium.ImageryLayer(new Cesium.OpenStreetMapImageryProvider({ url: 'https://tile.openstreetmap.org/' })),
+  baseLayerPicker: false, geocoder: false, homeButton: false, sceneModePicker: false,
+  navigationHelpButton: false, animation: false, timeline: false, fullscreenButton: false,
+  infoBox: false, selectionIndicator: false, terrainProvider: new Cesium.EllipsoidTerrainProvider(),
+});
+viewer.scene.globe.show = !key;
+viewer.scene.screenSpaceCameraController.enableInputs = false;
+
+if (key) {
+  Cesium.Cesium3DTileset.fromUrl(`https://tile.googleapis.com/v1/3dtiles/root.json?key=${encodeURIComponent(key)}`, { showCreditsOnScreen: true })
+    .then(ts => viewer.scene.primitives.add(ts))
+    .catch(err => { console.error(err); alert('Impossibile caricare le Photorealistic 3D Tiles: controlla la chiave e che la Map Tiles API sia abilitata.'); });
+}
+
+// --- Stato del gioco (Roma, zona Colosseo) ---
+const car = { lat: 41.8902, lon: 12.4922, h: 0, v: 0, y: 0 };      // h = rotta in radianti da nord, in senso orario
+const bad = { lat: 41.8915, lon: 12.4950, h: 1, v: 0, y: 0, t: 0 };
+const M = 111320;
+const keys = {};
+addEventListener('keydown', e => { keys[e.code] = true; if (e.code === 'KeyL') toggleSiren(); if (e.code === 'Space') e.preventDefault(); });
+addEventListener('keyup', e => { keys[e.code] = false; });
+
+const pos = o => Cesium.Cartesian3.fromDegrees(o.lon, o.lat, o.y);
+const carEnt = viewer.entities.add({
+  position: new Cesium.CallbackProperty(() => pos(car), false),
+  orientation: new Cesium.CallbackProperty(() => Cesium.Transforms.headingPitchRollQuaternion(pos(car), new Cesium.HeadingPitchRoll(car.h - Math.PI / 2, 0, 0)), false),
+  box: { dimensions: new Cesium.Cartesian3(4.8, 1.9, 1.5), material: Cesium.Color.fromCssColorString('#12306b') },
+});
+// Barra luci lampeggiante
+const bar = viewer.entities.add({
+  position: new Cesium.CallbackProperty(() => Cesium.Cartesian3.fromDegrees(car.lon, car.lat, car.y + 1.0), false),
+  orientation: new Cesium.CallbackProperty(() => Cesium.Transforms.headingPitchRollQuaternion(pos(car), new Cesium.HeadingPitchRoll(car.h - Math.PI / 2, 0, 0)), false),
+  box: { dimensions: new Cesium.Cartesian3(0.5, 1.4, 0.25), material: new Cesium.ColorMaterialProperty(new Cesium.CallbackProperty(() => sirenOn && (Math.floor(performance.now() / 150) % 2) ? Cesium.Color.RED : Cesium.Color.DODGERBLUE, false)) },
+});
+const badEnt = viewer.entities.add({
+  position: new Cesium.CallbackProperty(() => pos(bad), false),
+  orientation: new Cesium.CallbackProperty(() => Cesium.Transforms.headingPitchRollQuaternion(pos(bad), new Cesium.HeadingPitchRoll(bad.h - Math.PI / 2, 0, 0)), false),
+  box: { dimensions: new Cesium.Cartesian3(4.4, 1.8, 1.4), material: Cesium.Color.FIREBRICK },
+});
+viewer.entities.add({ position: new Cesium.CallbackProperty(() => pos(bad), false), point: { pixelSize: 12, color: Cesium.Color.RED, disableDepthTestDistance: Number.POSITIVE_INFINITY } });
+
+// --- Sirena (Web Audio) ---
+let sirenOn = false, ac, osc, gain;
+function toggleSiren() {
+  sirenOn = !sirenOn;
+  if (sirenOn) {
+    ac = ac || new AudioContext(); osc = ac.createOscillator(); gain = ac.createGain();
+    gain.gain.value = 0.08; osc.type = 'sawtooth'; osc.connect(gain).connect(ac.destination); osc.start();
+  } else if (osc) { osc.stop(); osc = null; }
+}
+setInterval(() => { if (osc) osc.frequency.value = (Math.floor(performance.now() / 600) % 2) ? 660 : 880; }, 100);
+
+// --- Fisica semplice ---
+function step(o, dt, throttle, steer, brake) {
+  const acc = throttle * 14 - (brake ? 30 : 0) - o.v * 0.35;
+  o.v = Math.max(-8, Math.min(40, o.v + acc * dt));
+  o.h += steer * dt * Math.min(1, Math.abs(o.v) / 8) * Math.sign(o.v || 1);
+  o.lat += Math.cos(o.h) * o.v * dt / M;
+  o.lon += Math.sin(o.h) * o.v * dt / (M * Math.cos(o.lat * Math.PI / 180));
+}
+async function snapToGround(o, ignore) {
+  const c = Cesium.Cartographic.fromDegrees(o.lon, o.lat);
+  try {
+    const h = viewer.scene.sampleHeight(c, ignore);
+    if (h !== undefined) o.y += (h + 0.8 - o.y) * 0.3;
+  } catch (e) {}
+}
+
+// --- Loop di gioco ---
+let last = performance.now(), caught = 0, over = false;
+const hud = document.getElementById('hud'), banner = document.getElementById('banner');
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (!over) {
+    step(car, dt, (keys.KeyW ? 1 : 0) - (keys.KeyS ? 0.6 : 0), (keys.KeyD ? 1 : 0) - (keys.KeyA ? 1 : 0), keys.Space);
+    bad.t -= dt;
+    if (bad.t <= 0) { bad.t = 2 + Math.random() * 3; bad.h += (Math.random() - 0.5) * 1.6; }
+    step(bad, dt, 0.9, 0, false);
+    snapToGround(car, [carEnt, bar]); snapToGround(bad, [badEnt]);
+
+    const dN = (bad.lat - car.lat) * M, dE = (bad.lon - car.lon) * M * Math.cos(car.lat * Math.PI / 180);
+    const dist = Math.hypot(dN, dE);
+    caught = dist < 15 ? caught + dt : Math.max(0, caught - dt);
+    if (caught >= 3) { over = true; banner.textContent = 'SOSPETTO FERMATO!'; banner.style.display = 'block'; }
+    hud.innerHTML = `Velocità: ${Math.round(car.v * 3.6)} km/h<br>Distanza sospetto: ${Math.round(dist)} m<br>Fermo: ${caught.toFixed(1)} / 3 s<br>Sirena: ${sirenOn ? 'ON' : 'off'}`;
+  }
+  viewer.camera.lookAt(pos(car), new Cesium.HeadingPitchRange(car.h, Cesium.Math.toRadians(-14), 22));
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
