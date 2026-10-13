@@ -28,14 +28,35 @@ if ($link -match '([A-Za-z0-9]+)/*$') { $code = $Matches[1].ToLower() }
 else { Write-Host 'Link non valido.' -ForegroundColor Red; return }
 
 # --- dati pubblici del server ---
+$ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36'
+$d = $null
+
+# 1) lista server di servers.fivem.net
 try {
-    $r = Invoke-RestMethod -Uri "https://servers-frontend.fivem.net/api/servers/single/$code" -UserAgent 'Mozilla/5.0' -TimeoutSec 20
+    $d = (Invoke-RestMethod -Uri "https://servers-frontend.fivem.net/api/servers/single/$code" -UserAgent $ua -TimeoutSec 20).Data
 } catch {
-    Write-Host "Server non trovato o offline (codice: $code)." -ForegroundColor Red
+    Write-Host "Lista server FiveM: $($_.Exception.Message)" -ForegroundColor Yellow
+}
+
+# 2) riserva: cfx.re/join -> indirizzo del server -> info.json + dynamic.json
+if (-not $d) {
+    try {
+        $w = Invoke-WebRequest -Uri "https://cfx.re/join/$code" -UserAgent $ua -UseBasicParsing -TimeoutSec 20
+        $base = ([string]$w.Headers['X-CitizenFX-Url']).Trim().TrimEnd('/')
+        if (-not $base) { throw 'il link non contiene l''indirizzo del server' }
+        Write-Host "Provo direttamente il server: $base"
+        $info = Invoke-RestMethod -Uri "$base/info.json" -UserAgent $ua -TimeoutSec 15
+        $dyn = Invoke-RestMethod -Uri "$base/dynamic.json" -UserAgent $ua -TimeoutSec 15
+        $d = [pscustomobject]@{ hostname = $dyn.hostname; sv_maxclients = $dyn.sv_maxclients; resources = $info.resources; vars = $info.vars }
+    } catch {
+        Write-Host "Lettura diretta: $($_.Exception.Message)" -ForegroundColor Yellow
+    }
+}
+
+if (-not $d) {
+    Write-Host "Impossibile leggere il server $code (offline, codice errato o info nascoste)." -ForegroundColor Red
     return
 }
-$d = $r.Data
-if (-not $d) { Write-Host 'Risposta vuota dal server.' -ForegroundColor Red; return }
 $v = $d.vars
 
 $cmd = if ($env:CMD -eq 'start') { 'start' } else { 'ensure' }
