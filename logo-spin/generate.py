@@ -13,15 +13,20 @@ import numpy as np
 from PIL import Image, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-W, H = 800, 450
+W, H = 400, 400          # tela ritagliata attorno al logo
 FRAMES, FPS = 72, 24
 CENTER = np.array([W / 2, H / 2])
-CENTER_H = 150          # altezza del logo al centro (px)
-GHOSTS = 3              # copie che volano verso i bordi
+CENTER_H = 190          # altezza del logo al centro (px)
+LOGO_ONLY = True        # True = solo il logo che gira (nessuna copia fantasma, nessun alone)
+GHOSTS = 0 if LOGO_ONLY else 3  # copie che volano verso i bordi
 GHOST_DIRS = [200, 335, 95]  # direzione di fuga (gradi)
 
 src = Image.open(os.path.join(HERE, "next-rome-logo.png")).convert("RGBA")
 alpha = np.array(src)[..., 3]
+# via il rumore quasi invisibile del PNG: fuori dal logo deve essere trasparenza pura
+arr = np.array(src)
+arr[arr[..., 3] <= 24] = 0
+src = Image.fromarray(arr, "RGBA")
 src = src.crop(Image.fromarray((alpha > 24).astype(np.uint8) * 255).getbbox())
 
 
@@ -94,12 +99,13 @@ def render(frame):
         pulse = 1.0 + 0.04 * math.sin(2 * math.pi * tt * 2)
         return CENTER, angle, pulse
 
-    c = blurred(center_state, 12)
+    c = blurred(center_state, 16)
     # alone luminoso sul logo
     glow = Image.fromarray((np.clip(c, 0, 1) * 255).astype(np.uint8), "RGBA").filter(ImageFilter.GaussianBlur(8))
     glow = np.asarray(glow, np.float32) / 255.0
     glow[..., :3] = glow[..., 3:4] * np.array([0.55, 0.8, 1.0], np.float32)
-    out = over(out, glow, 0.4)
+    if not LOGO_ONLY:
+        out = over(out, glow, 0.4)
     out = over(out, c)
 
     rgb = out[..., :3] / np.maximum(out[..., 3:4], 1e-6)
@@ -114,4 +120,15 @@ if __name__ == "__main__":
                    duration=dur, loop=0, lossless=True, quality=90, method=4)
     frames[0].save(os.path.join(HERE, "next-rome-spin.png"), save_all=True, append_images=frames[1:],
                    duration=dur, loop=0, disposal=1)
+    # GIF con trasparenza (per i programmi che non leggono la trasparenza del WebP)
+    gif = []
+    for f in frames:
+        a = np.array(f)[..., 3]
+        q = f.convert("RGB").quantize(255, dither=Image.NONE)
+        px = np.array(q)
+        px[a < 128] = 255
+        q = Image.fromarray(px, "P"); q.putpalette(f.convert("RGB").quantize(255, dither=Image.NONE).getpalette())
+        gif.append(q)
+    gif[0].save(os.path.join(HERE, "next-rome-spin.gif"), save_all=True, append_images=gif[1:],
+                duration=dur, loop=0, transparency=255, disposal=2)
     print("ok", len(frames), "frames")
