@@ -13,10 +13,11 @@ import numpy as np
 from PIL import Image, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-W, H = 400, 400          # tela ritagliata attorno al logo
+SIZE = 300                # stessa tela del logo 081 (300x300)
+W, H = SIZE, SIZE
 FRAMES, FPS = 72, 24
 CENTER = np.array([W / 2, H / 2])
-CENTER_H = 190          # altezza del logo al centro (px)
+CENTER_H = round(SIZE * 0.7)          # altezza del logo al centro (px)
 LOGO_ONLY = True        # True = solo il logo che gira (nessuna copia fantasma, nessun alone)
 GHOSTS = 0 if LOGO_ONLY else 3  # copie che volano verso i bordi
 GHOST_DIRS = [200, 335, 95]  # direzione di fuga (gradi)
