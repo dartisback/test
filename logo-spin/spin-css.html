@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Next Rome - Logo 360</title>
+<style>
+  html, body { margin: 0; height: 100%; background: transparent; }
+  body { display: grid; place-items: center; }
+  /* solo il logo, un giro completo di 360 gradi in loop */
+  img { width: min(60vw, 60vh); animation: spin 3s linear infinite; }
+  @keyframes spin { to { transform: rotate(-360deg); } }
+</style>
+</head>
+<body>
+  <img src="next-rome-logo.png" alt="Next Rome Roleplay">
+</body>
+</html>

@@ -91,12 +91,12 @@ def render(frame):
         out = over(out, ghost, 0.85 * fade)
 
     # --- logo centrale: rotazione continua + pulsazione + motion blur ---
-    turns = 2
+    turns = 1   # un giro completo di 360 gradi per ciclo
 
     def center_state(sub):
-        tt = t + sub * dt * 0.7
+        tt = t + sub * dt * 0.5
         angle = -360 * turns * tt
-        pulse = 1.0 + 0.04 * math.sin(2 * math.pi * tt * 2)
+        pulse = 1.0 if LOGO_ONLY else 1.0 + 0.04 * math.sin(2 * math.pi * tt * 2)
         return CENTER, angle, pulse
 
     c = blurred(center_state, 16)
