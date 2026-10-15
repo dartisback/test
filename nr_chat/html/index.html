@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>nr_chat</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="banner"></div>
+
+  <div id="chat">
+    <div id="panel">
+      <div id="messages"></div>
+
+      <div id="inputWrap">
+        <div id="suggestions"></div>
+        <div id="inputBar">
+          <span id="chip"></span>
+          <input id="input" type="text" autocomplete="off" spellcheck="false" placeholder="Scrivi un comando, es. /twitter ciao">
+          <span id="counter">0</span>
+        </div>
+        <div id="hint"><b>Invio</b> invia · <b>Tab</b> completa · <b>↑↓</b> cronologia · <b>Esc</b> chiudi</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
