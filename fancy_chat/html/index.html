@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Fancy Chat</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="chat">
+    <div id="messages"></div>
+
+    <div id="suggestions"></div>
+
+    <div id="inputbox">
+        <div id="in-icon"><img id="in-icon-img" src="img/chat.svg" alt=""></div>
+        <input id="input" type="text" autocomplete="off" spellcheck="false" placeholder="Scrivi un messaggio oppure / per i comandi">
+        <span id="counter">0/200</span>
+    </div>
+
+    <div id="hint">
+        <span><kbd>Invio</kbd> invia</span>
+        <span><kbd>Tab</kbd> completa</span>
+        <span><kbd>↑</kbd><kbd>↓</kbd> cronologia</span>
+        <span><kbd>Pag↑</kbd><kbd>Pag↓</kbd> scorri</span>
+        <span><kbd>Esc</kbd> chiudi</span>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
