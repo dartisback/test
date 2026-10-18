@@ -29,3 +29,9 @@ viene trovato da solo. Senza file si usa l'icona di default e un colore generato
 Supporta `chat:addMessage`, `chat:addSuggestion(s)`, `chat:removeSuggestion`, `chat:clear`.
 Export server: `exports.fancy_chat:sendMessage(target, { title=, author=, text=, color=, icon=, fx= })`
 (`fx`: `glitch`, `wobble`, `shake`, `pulse`, `siren`).
+
+## Se la chat di default parte lo stesso (metodo sicuro)
+Cerca nel server la cartella della chat originale (di solito `resources/[cfx-default]/[gameplay]/chat`)
+e **cancellala o rinominala** (es. `chat_OFF`). Poi togli `ensure chat` dal `server.cfg`.
+Se vuoi puoi anche rinominare `fancy_chat` in `chat`: cosi' ogni script che dipende da "chat" usa questa.
+Altre chat da fermare (es. `okokChat`) vanno aggiunte in `Config.StopResources`.

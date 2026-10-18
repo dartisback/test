@@ -144,7 +144,7 @@
             const key = first.toLowerCase();
             matches = suggestions
                 .filter((s) => (typedArgs ? s.name === key : s.name.startsWith(key)))
-                .slice(0, 6);
+                .slice(0, 4);
         }
 
         const current = matches.find((s) => value.slice(1).split(' ')[0].toLowerCase() === s.name) || matches[0];

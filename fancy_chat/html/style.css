@@ -20,7 +20,7 @@ html, body {
 #chat {
     position: fixed;
     left: 1vw;
-    top: 3vh;
+    top: 30vh;
     width: 27vw;
     min-width: 380px;
     max-width: 520px;
@@ -36,7 +36,7 @@ html, body {
 #messages {
     display: flex;
     flex-direction: column;
-    max-height: 46vh;
+    max-height: 26vh;
     overflow: hidden;
     padding: 4px 6px 0 0;
 }

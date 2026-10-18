@@ -250,29 +250,31 @@ AddEventHandler('playerDropped', function()
 end)
 
 -- ================================================================
---  Ferma la chat di default di FiveM (la risorsa "chat") se parte per errore
+--  Ferma le chat concorrenti (la risorsa "chat" di default di FiveM ecc.)
+--  Controlla di continuo, cosi' se un altro script la riavvia viene rifermata.
 -- ================================================================
-local function stopDefaultChat()
-    if not Config.StopDefaultChat or resource == 'chat' then return end
-    local state = GetResourceState('chat')
-    if state == 'started' or state == 'starting' then
-        StopResource('chat')
-        print(('[%s] la risorsa "chat" di default era avviata: fermata. Toglila dal server.cfg (ensure chat / start chat) e da eventuali dipendenze di altri script.'):format(resource))
+local warned = {}
+
+local function stopOtherChats()
+    for _, name in ipairs(Config.StopResources) do
+        if name ~= resource then
+            local state = GetResourceState(name)
+            if state == 'started' or state == 'starting' then
+                StopResource(name)
+                if not warned[name] then
+                    warned[name] = true
+                    print(('[%s] la risorsa "%s" era avviata: fermata. Toglila dal server.cfg e da ogni "dependency \'%s\'" negli altri script.'):format(resource, name, name))
+                end
+            end
+        end
     end
 end
 
-AddEventHandler('onResourceStart', function(name)
-    if name == 'chat' then
-        CreateThread(function()
-            Wait(0)
-            stopDefaultChat()
-        end)
-    end
-end)
-
 CreateThread(function()
-    Wait(1000)
-    stopDefaultChat()
+    while Config.StopDefaultChat do
+        stopOtherChats()
+        Wait(2000)
+    end
 end)
 
 -- Export per gli altri script:  exports.fancy_chat:sendMessage(-1, { title=..., text=..., color=..., icon=... })

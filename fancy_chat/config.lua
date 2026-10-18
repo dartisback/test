@@ -20,8 +20,10 @@ Config.LocalChat = {
 -- Gruppi ESX considerati "staff"
 Config.AdminGroups = { 'admin', 'superadmin', 'mod', 'moderator', 'god' }
 
--- Ferma da sola la risorsa "chat" di default se risulta avviata (evita le due chat sovrapposte)
+-- Ferma da sola le chat concorrenti se risultano avviate (evita le due chat sovrapposte).
+-- Aggiungi qui il nome di altre chat (es. 'okokChat') se ne hai.
 Config.StopDefaultChat = true
+Config.StopResources   = { 'chat' }
 
 -- Stampa in console il vero nome di chi scrive con /anon
 Config.LogAnon = true
