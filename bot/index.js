@@ -18,6 +18,7 @@ const {
   StreamType,
 } = require('@discordjs/voice');
 const { WaitingMixer, decodeToPcm } = require('./mixer');
+const { registraComandi, ascolta } = require('./interactions');
 const googleTTS = require('google-tts-api');
 
 // Usa il ffmpeg incluso nel pacchetto (non serve installarlo a mano)
@@ -58,6 +59,8 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.GuildMembers, // serve per leggere chi ha il ruolo staff (da attivare nel Developer Portal)
+    // facoltativo: serve solo per avere il testo dei messaggi nelle trascrizioni dei ticket
+    ...(process.env.MESSAGE_CONTENT === 'si' ? [GatewayIntentBits.MessageContent] : []),
   ],
 });
 
@@ -319,12 +322,22 @@ client.once(Events.ClientReady, async (c) => {
     console.warn('Saluto vocale non generato (controlla la connessione):', e.message);
   }
   try {
+    const ch = await client.channels.fetch(CHANNEL_ID);
+    await registraComandi(ch.guild);
+  } catch (e) {
+    console.error(
+      `!! Comandi slash NON registrati (${e.message}). Se dice "Missing Access" reinvita il bot con lo scope "applications.commands".`,
+    );
+  }
+  try {
     await joinChannel();
   } catch (e) {
     console.error('Connessione iniziale fallita, riprovo:', e.message);
     scheduleRejoin(5_000);
   }
 });
+
+ascolta(client);
 
 process.on('unhandledRejection', (e) => console.error('Errore non gestito:', e));
 

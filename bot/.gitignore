@@ -1,3 +1,4 @@
 node_modules/
 .env
 tts-benvenuto.mp3
+data/

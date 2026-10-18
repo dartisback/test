@@ -30,3 +30,26 @@ Il log non si vede più: per vederlo usa `avvia-bot.bat`.
 ## Musica d'attesa
 Di default usa `attesa.wav` (generata da `genera-attesa.js`). Per usare la tua, metti un
 file `attesa.mp3` nella cartella: ha la precedenza.
+
+## Comandi slash
+Gli ID di ruoli e canali si mettono nel `.env` (vedi `.env.example`). Se manca un ID, il comando te lo dice.
+Al primo avvio il bot registra i comandi da solo: il bot deve essere stato invitato con lo scope **applications.commands**
+(altrimenti nel log vedi "Missing Access": rigenera il link d'invito con `bot` + `applications.commands`).
+
+| Comando | Chi lo usa | Cosa fa |
+|---|---|---|
+| `/whitelistaccettata` | staff whitelist | dà il ruolo whitelist, pubblica l'esito e manda DM |
+| `/whitelistrimandata` | staff whitelist | pubblica l'esito con motivo e manda DM |
+| `/convocanowl` | staff whitelist | convoca al colloquio (data/ora/stanza), pubblica e manda DM |
+| `/modulowl` | tutti | apre il modulo whitelist; lo staff accetta/rifiuta coi bottoni |
+| `/ticketpanel` | assistenza | pubblica il pannello ticket (Assistenza / Report) |
+| `/warnplayer` | assistenza | warn a un giocatore, conta i warn, log + DM facoltativo |
+| `/banplayer` | assistenza | registra il ban (il ban in-game va fatto a parte), log + DM |
+| `/warnfazioni` | assistenza | warn a una fazione, con conteggio |
+| `/esitiazioni` | assistenza | pubblica l'esito di un'azione (vittoria/sconfitta/pareggio/annullata) |
+| `/asseseguite` | assistenza | registra un'assistenza eseguita, con conteggio totale e settimanale |
+| `/reporteseguiti` | assistenza | registra un report gestito, con conteggio totale e settimanale |
+| `/modulodirezione` | tutti | modulo per la direzione; la direzione accetta/rifiuta |
+| `/candidaturastaff` `/candidaturateamac` `/candidaturacreator` | tutti | candidature con modulo; la direzione accetta/rifiuta e il candidato riceve il DM |
+
+I ruoli admin del server possono usare tutti i comandi. I dati (warn, ban, conteggi) sono salvati in `data/db.json`.
