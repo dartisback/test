@@ -17,6 +17,8 @@ function ascolta(client) {
       } else if (i.isButton()) {
         if (i.customId.startsWith('ticket:')) await tickets.onButton(i);
         else if (i.customId.startsWith('form:')) await forms.onButton(i);
+      } else if (i.isStringSelectMenu()) {
+        if (i.customId === 'moduli:scelta') await forms.apri(i, i.values[0]);
       } else if (i.isModalSubmit()) {
         if (i.customId.startsWith('formsubmit:')) await forms.onSubmit(i);
         else if (i.customId.startsWith('formreject:')) await forms.onRejectSubmit(i);

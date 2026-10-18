@@ -3,6 +3,7 @@ const all = [
   ...require('./assistenza'),
   ...require('./direzione'),
   ...require('./candidature'),
+  ...require('./moduli'),
 ];
 
 module.exports = {

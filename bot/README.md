@@ -49,6 +49,7 @@ Al primo avvio il bot registra i comandi da solo: il bot deve essere stato invit
 | `/esitiazioni` | assistenza | pubblica l'esito di un'azione (vittoria/sconfitta/pareggio/annullata) |
 | `/asseseguite` | assistenza | registra un'assistenza eseguita, con conteggio totale e settimanale |
 | `/reporteseguiti` | assistenza | registra un report gestito, con conteggio totale e settimanale |
+| `/moduli` | tutti | elenco di tutti i moduli: scegli dal menu e compili |
 | `/modulodirezione` | tutti | modulo per la direzione; la direzione accetta/rifiuta |
 | `/candidaturastaff` `/candidaturateamac` `/candidaturacreator` | tutti | candidature con modulo; la direzione accetta/rifiuta e il candidato riceve il DM |
 
