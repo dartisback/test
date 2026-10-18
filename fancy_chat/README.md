@@ -2,7 +2,9 @@
 
 ## Installazione
 1. Copia la cartella `fancy_chat` in `resources/`.
-2. Nel `server.cfg` **togli** `ensure chat` e aggiungi `ensure fancy_chat` (dopo `es_extended`).
+2. Nel `server.cfg` **togli** `ensure chat` / `start chat` (e anche `chat-theme-gtao`) e aggiungi `ensure fancy_chat` (dopo `es_extended`).
+   Se la chat di default parte lo stesso, fancy_chat la ferma da sola (`Config.StopDefaultChat`);
+   controlla comunque che nessun altro script abbia `dependency 'chat'` nel suo fxmanifest.
 3. Riavvia il server. Si apre con **T** (tasto cambiabile in Config.OpenKey / impostazioni tasti FiveM).
 
 ## Comandi

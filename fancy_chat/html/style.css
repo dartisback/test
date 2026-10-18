@@ -19,8 +19,8 @@ html, body {
 
 #chat {
     position: fixed;
-    left: 1.2vw;
-    bottom: 3vh;
+    left: 1vw;
+    top: 3vh;
     width: 27vw;
     min-width: 380px;
     max-width: 520px;
@@ -36,11 +36,10 @@ html, body {
 #messages {
     display: flex;
     flex-direction: column;
-    max-height: 50vh;
+    max-height: 46vh;
     overflow: hidden;
     padding: 4px 6px 0 0;
 }
-#messages > :first-child { margin-top: auto; }
 #chat.open #messages { overflow-y: auto; }
 #chat.open #messages::-webkit-scrollbar { width: 5px; }
 #chat.open #messages::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .22); border-radius: 4px; }

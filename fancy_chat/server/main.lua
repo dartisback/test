@@ -249,6 +249,32 @@ AddEventHandler('playerDropped', function()
     cooldowns[source] = nil
 end)
 
+-- ================================================================
+--  Ferma la chat di default di FiveM (la risorsa "chat") se parte per errore
+-- ================================================================
+local function stopDefaultChat()
+    if not Config.StopDefaultChat or resource == 'chat' then return end
+    local state = GetResourceState('chat')
+    if state == 'started' or state == 'starting' then
+        StopResource('chat')
+        print(('[%s] la risorsa "chat" di default era avviata: fermata. Toglila dal server.cfg (ensure chat / start chat) e da eventuali dipendenze di altri script.'):format(resource))
+    end
+end
+
+AddEventHandler('onResourceStart', function(name)
+    if name == 'chat' then
+        CreateThread(function()
+            Wait(0)
+            stopDefaultChat()
+        end)
+    end
+end)
+
+CreateThread(function()
+    Wait(1000)
+    stopDefaultChat()
+end)
+
 -- Export per gli altri script:  exports.fancy_chat:sendMessage(-1, { title=..., text=..., color=..., icon=... })
 exports('sendMessage', function(target, payload)
     payload.time = payload.time or now()
