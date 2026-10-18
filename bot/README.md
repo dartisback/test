@@ -4,8 +4,8 @@ Appena parte, il bot entra nel canale vocale d'attesa con le **cuffie barrate** 
 Quando un utente entra:
 1. dice *"Ciao! Benvenuto nella Assistenza di Next Rome RP, ho appena avvisato uno staff!"*
 2. parte la musichetta d'attesa in loop (si ferma quando il canale resta vuoto)
-   - se entra un'altra persona mentre qualcuno sta già ascoltando la musica, la musica **non si ferma e non riparte**: il saluto di chi è entrato si sovrappone (musica abbassata per qualche secondo)
-   - nota: un bot Discord manda un solo audio per canale, quindi il saluto lo sentono anche gli altri già presenti
+   - se entra un'altra persona mentre qualcuno sta già ascoltando la musica, la musica **non si ferma e non riparte**, e il saluto lo sente **solo chi è appena entrato**: chi era già dentro viene messo in "Silenzia server" per ~5 secondi (il tempo del saluto) e poi ripristinato automaticamente. Lo staff non viene mai silenziato.
+   - se il bot si ferma mentre qualcuno è silenziato, viene ripristinato appena rientra in un canale vocale (gli ID sono salvati in `silenziati.json`)
 3. manda un DM a tutti quelli che hanno il ruolo staff
 
 ## Setup

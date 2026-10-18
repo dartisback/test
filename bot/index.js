@@ -18,6 +18,7 @@ const {
   StreamType,
 } = require('@discordjs/voice');
 const { WaitingMixer, decodeToPcm } = require('./mixer');
+const { createGreeter } = require('./greeter');
 const googleTTS = require('google-tts-api');
 
 // Usa il ffmpeg incluso nel pacchetto (non serve installarlo a mano)
@@ -160,6 +161,7 @@ async function joinChannel() {
     console.log(`Connesso a "${channel.name}".`);
     const me = channel.guild.members.me;
     if (me?.voice) enforceVoiceState(me.voice);
+    greeter.releaseAllIn(channel).catch(console.error); // ripristina chi era rimasto silenziato
     if (humansInChannel() > 0) startMixer(false); // c'è già gente in attesa: solo musica
   } finally {
     joining = false;
@@ -234,11 +236,15 @@ function stopMixer() {
   m.destroy();
 }
 
-// Una persona è entrata: il saluto è suo. Se qualcuno sta già ascoltando la musica,
-// questa NON si interrompe e NON riparte: il saluto le si sovrappone.
-async function greetNewcomer() {
+// Riproduce il saluto per la persona di turno (gli altri sono già silenziati dal greeter).
+// Se qualcuno sta già ascoltando la musica, questa NON si interrompe e NON riparte.
+async function playGreeting() {
   if (!greetingPcm) await prepareGreeting(); // riprova se prima era fallito
   if (humansInChannel() === 0) return;
+  if (!greetingPcm) {
+    if (!mixer) startMixer(false); // niente voce: almeno la musica
+    return;
+  }
   if (mixer) {
     console.log('Saluto sovrapposto alla musica in corso.');
     mixer.queueGreeting();
@@ -247,6 +253,14 @@ async function greetNewcomer() {
     startMixer(true);
   }
 }
+
+const greeter = createGreeter({
+  getChannel: () => client.channels.cache.get(CHANNEL_ID),
+  isStaff: (m) => m.roles.cache.has(STAFF_ROLE_ID),
+  playGreeting,
+  greetMs: () => (greetingPcm ? (greetingPcm.length / 192000) * 1000 : 0), // 48kHz stereo 16bit
+  stateFile: path.join(__dirname, 'silenziati.json'),
+});
 
 player.on('stateChange', (o, n) => console.log(`[audio] ${o.status} -> ${n.status}`));
 
@@ -299,14 +313,19 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
   }
   if (newState.member?.user.bot) return;
 
+  if (newState.channelId && newState.channelId !== CHANNEL_ID && newState.channelId !== oldState.channelId) {
+    greeter.releaseIfStale(newState.member).catch(console.error);
+  }
+
   const joined = newState.channelId === CHANNEL_ID && oldState.channelId !== CHANNEL_ID;
   const left = oldState.channelId === CHANNEL_ID && newState.channelId !== CHANNEL_ID;
 
   if (joined) {
     console.log(`${newState.member.displayName} è entrato in attesa.`);
-    greetNewcomer().catch(console.error);
+    greeter.onJoin(newState.member).catch(console.error);
     notifyStaff(newState.member, newState.channel).catch(console.error);
   } else if (left && humansInChannel() === 0) {
+    greeter.clear();
     stopMixer();
   }
 });
