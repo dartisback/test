@@ -1,6 +1,6 @@
 # Bot Assistenza – Next Rome RP
 
-Appena parte, il bot entra nel canale vocale d'attesa **deaf** (icona cuffie barrate).
+Appena parte, il bot entra nel canale vocale d'attesa (non mutato, così può parlare e suonare).
 Quando un utente entra:
 1. dice *"Ciao! Benvenuto nella Assistenza di Next Rome RP, ho appena avvisato uno staff!"*
 2. parte la musichetta d'attesa in loop (si ferma quando il canale resta vuoto)

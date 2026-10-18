@@ -92,7 +92,7 @@ async function joinChannel() {
       channelId: channel.id,
       guildId: channel.guild.id,
       adapterCreator: channel.guild.voiceAdapterCreator,
-      selfDeaf: true, // icona cuffie barrate: il bot appare "mutato"
+      selfDeaf: false, // non mutato: deve poter parlare e suonare
       selfMute: false,
     });
     connection = conn;
@@ -118,7 +118,7 @@ async function joinChannel() {
     });
 
     await entersState(conn, VoiceConnectionStatus.Ready, 30_000);
-    console.log(`Connesso (deaf) a "${channel.name}".`);
+    console.log(`Connesso a "${channel.name}".`);
     phase = 'idle';
     if (humansInChannel() > 0) playMusic(); // c'è già gente in attesa
   } finally {
