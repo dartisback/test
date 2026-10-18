@@ -156,9 +156,10 @@
             const row = el('div', 'sug');
             row.style.setProperty('--c', s.color || '#38bdf8');
             row.style.animationDelay = i * 35 + 'ms';
-            const ic = el('div', 's-icon');
+            const sIcon = safeSrc(s.icon);
+            const ic = el('div', 's-icon' + (isPhoto(sIcon) ? ' photo' : ''));
             const im = el('img');
-            im.src = safeSrc(s.icon);
+            im.src = sIcon;
             ic.appendChild(im);
             row.appendChild(ic);
             row.appendChild(el('span', 's-name', '/' + s.name));
@@ -174,7 +175,9 @@
     const setAccent = (color, icon) => {
         const c = normColor(color) || '#38bdf8';
         inputBox.style.setProperty('--c', c);
-        inIconImg.src = safeSrc(icon || 'img/chat.svg');
+        const src = safeSrc(icon || 'img/chat.svg');
+        inIconImg.src = src;
+        $('in-icon').classList.toggle('photo', isPhoto(src));
     };
 
     const select = (i) => {

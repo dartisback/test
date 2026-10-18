@@ -122,8 +122,14 @@ html, body {
     box-shadow: 0 4px 14px rgba(var(--rgb), .55);
 }
 .icon img { width: 26px; height: 26px; object-fit: contain; position: relative; z-index: 1; }
-.icon.photo { background: #0b0d14; }
-.icon.photo img { width: 100%; height: 100%; border-radius: 13px; object-fit: cover; }
+.icon.photo {
+    width: 62px; height: 62px;
+    background: rgba(255, 255, 255, .07);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .12) inset, 0 4px 16px rgba(var(--rgb), .5);
+}
+.icon.photo img { width: 100%; height: 100%; padding: 3px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .5)); }
+.compact .icon.photo { width: 38px; height: 38px; }
+.compact .icon.photo img { width: 100%; height: 100%; }
 .icon .letter { font-weight: 800; font-size: 20px; position: relative; z-index: 1; }
 
 .icon::before {              /* onda che si espande all'arrivo */
@@ -288,6 +294,11 @@ html, body {
     flex: 0 0 auto;
 }
 .sug .s-icon img { width: 15px; height: 15px; }
+.sug .s-icon.photo, #in-icon.photo { background: rgba(255, 255, 255, .1); background-image: none; }
+.sug .s-icon.photo { width: 30px; height: 30px; }
+.sug .s-icon.photo img { width: 100%; height: 100%; padding: 2px; object-fit: contain; }
+#in-icon.photo { width: 34px; height: 34px; }
+#in-icon.photo img { width: 100%; height: 100%; padding: 2px; object-fit: contain; }
 .sug .s-name   { font-weight: 700; font-size: 13.5px; }
 .sug .s-params { font-size: 12.5px; color: var(--dim); }
 .sug .s-help   { margin-left: auto; font-size: 11.5px; color: var(--dim); text-align: right; }
