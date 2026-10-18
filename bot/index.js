@@ -71,36 +71,73 @@ async function prepareGreeting() {
 
 /* ---------- Connessione al canale (mutato/deaf) ---------- */
 
+let joining = false;
+let rejoinTimer = null;
+
 async function joinChannel() {
-  const channel = await client.channels.fetch(CHANNEL_ID);
-  if (!channel || !channel.isVoiceBased()) {
-    throw new Error('VOICE_CHANNEL_ID non è un canale vocale valido.');
-  }
-
-  connection = joinVoiceChannel({
-    channelId: channel.id,
-    guildId: channel.guild.id,
-    adapterCreator: channel.guild.voiceAdapterCreator,
-    selfDeaf: true, // icona cuffie barrate: il bot appare "mutato"
-    selfMute: false,
-  });
-  connection.subscribe(player);
-
-  connection.on(VoiceConnectionStatus.Disconnected, async () => {
-    try {
-      await Promise.race([
-        entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
-        entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
-      ]);
-    } catch {
-      connection.destroy();
-      setTimeout(() => joinChannel().catch(console.error), 5_000);
+  if (joining) return;
+  joining = true;
+  try {
+    const channel = await client.channels.fetch(CHANNEL_ID);
+    if (!channel || !channel.isVoiceBased()) {
+      throw new Error('VOICE_CHANNEL_ID non è un canale vocale valido.');
     }
-  });
 
-  await entersState(connection, VoiceConnectionStatus.Ready, 30_000);
-  console.log(`Connesso (deaf) a "${channel.name}".`);
-  return channel;
+    if (connection) {
+      try { connection.destroy(); } catch {}
+      connection = null;
+    }
+
+    const conn = joinVoiceChannel({
+      channelId: channel.id,
+      guildId: channel.guild.id,
+      adapterCreator: channel.guild.voiceAdapterCreator,
+      selfDeaf: true, // icona cuffie barrate: il bot appare "mutato"
+      selfMute: false,
+    });
+    connection = conn;
+    conn.subscribe(player);
+
+    conn.on('stateChange', (o, n) => {
+      console.log(`[voce] ${o.status} -> ${n.status}${n.closeCode ? ` (codice ${n.closeCode})` : ''}`);
+    });
+    conn.on('error', (e) => console.error('[voce] errore:', e.message));
+
+    conn.on(VoiceConnectionStatus.Disconnected, async () => {
+      try {
+        // se è solo uno spostamento/riconnessione si riprende da solo
+        await Promise.race([
+          entersState(conn, VoiceConnectionStatus.Signalling, 3_000),
+          entersState(conn, VoiceConnectionStatus.Connecting, 3_000),
+        ]);
+      } catch {
+        // kickato / disconnesso: rientra subito
+        if (conn.state.status !== VoiceConnectionStatus.Destroyed) conn.destroy();
+        if (connection === conn) scheduleRejoin(500);
+      }
+    });
+
+    await entersState(conn, VoiceConnectionStatus.Ready, 30_000);
+    console.log(`Connesso (deaf) a "${channel.name}".`);
+    phase = 'idle';
+    if (humansInChannel() > 0) playMusic(); // c'è già gente in attesa
+  } finally {
+    joining = false;
+  }
+}
+
+// Riprova finché non riesce a rientrare nel canale
+function scheduleRejoin(delay = 1_000) {
+  if (rejoinTimer) return;
+  rejoinTimer = setTimeout(async () => {
+    rejoinTimer = null;
+    try {
+      await joinChannel();
+    } catch (e) {
+      console.error('Rientro fallito, riprovo tra 5s:', e.message);
+      scheduleRejoin(5_000);
+    }
+  }, delay);
 }
 
 /* ---------- Riproduzione: saluto -> musichetta in loop ---------- */
@@ -175,6 +212,16 @@ async function notifyStaff(member, channel) {
 /* ---------- Eventi ---------- */
 
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
+  // il bot è stato kickato o spostato: torna nel canale d'attesa
+  if (newState.id === client.user.id) {
+    if (newState.channelId !== CHANNEL_ID && !joining) {
+      console.log('Il bot è stato disconnesso/spostato, rientro...');
+      phase = 'idle';
+      player.stop(true);
+      scheduleRejoin(500);
+    }
+    return;
+  }
   if (newState.member?.user.bot) return;
 
   const joined = newState.channelId === CHANNEL_ID && oldState.channelId !== CHANNEL_ID;
@@ -196,7 +243,12 @@ client.once(Events.ClientReady, async (c) => {
   } catch (e) {
     console.warn('Saluto vocale non generato (controlla la connessione):', e.message);
   }
-  await joinChannel();
+  try {
+    await joinChannel();
+  } catch (e) {
+    console.error('Connessione iniziale fallita, riprovo:', e.message);
+    scheduleRejoin(5_000);
+  }
 });
 
 process.on('unhandledRejection', (e) => console.error('Errore non gestito:', e));
