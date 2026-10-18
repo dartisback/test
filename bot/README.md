@@ -1,6 +1,6 @@
 # Bot Assistenza – Next Rome RP
 
-Appena parte, il bot entra nel canale vocale d'attesa (non mutato, così può parlare e suonare).
+Appena parte, il bot entra nel canale vocale d'attesa con le **cuffie barrate** (si mette da solo in "Silenzia server": non ascolta ma può parlare e suonare). Se uno staff lo muta di microfono, si smuta da solo.
 Quando un utente entra:
 1. dice *"Ciao! Benvenuto nella Assistenza di Next Rome RP, ho appena avvisato uno staff!"*
 2. parte la musichetta d'attesa in loop (si ferma quando il canale resta vuoto)
@@ -12,7 +12,7 @@ Quando un utente entra:
 1. **Resetta il token** nel Developer Portal (Bot → Reset Token) e mettilo solo nel file `.env`
    (copia `.env.example` in `.env`).
 2. Developer Portal → Bot → attiva **Server Members Intent** (serve per trovare chi ha il ruolo staff).
-3. Il bot deve avere i permessi *Connetti* e *Parla* sul canale vocale.
+3. Il bot deve avere i permessi *Connetti*, *Parla*, **Silenzia membri** e **Escludi l'audio dei membri** (Rendi sordi) sul canale vocale: servono per mettersi le cuffie barrate e per smutarsi da solo.
 4. Avvia con `avvia-bot.bat` (la prima volta installa da solo le dipendenze; serve Node.js 18+).
 
 ## Avvio insieme al server FiveM

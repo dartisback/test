@@ -158,6 +158,8 @@ async function joinChannel() {
 
     await entersState(conn, VoiceConnectionStatus.Ready, 30_000);
     console.log(`Connesso a "${channel.name}".`);
+    const me = channel.guild.members.me;
+    if (me?.voice) enforceVoiceState(me.voice);
     if (humansInChannel() > 0) startMixer(false); // c'è già gente in attesa: solo musica
   } finally {
     joining = false;
@@ -176,6 +178,32 @@ function scheduleRejoin(delay = 1_000) {
       scheduleRejoin(5_000);
     }
   }, delay);
+}
+
+/* ---------- Stato vocale del bot: sempre "silenziato server" (cuffie barrate), mai mutato ---------- */
+
+let permWarned = false;
+
+async function enforceVoiceState(state) {
+  try {
+    // se uno staff gli toglie il microfono per tutti, si smuta da solo
+    if (state.serverMute) {
+      console.log('Il bot è stato mutato dallo staff: mi smuto.');
+      await state.setMute(false, 'Il bot deve poter parlare');
+    }
+    // resta con le cuffie barrate (silenzia server): può parlare ma non ascolta
+    if (!state.serverDeaf) {
+      await state.setDeaf(true, 'Il bot non deve ascoltare');
+    }
+  } catch (e) {
+    if (!permWarned) {
+      permWarned = true;
+      console.error(
+        `!! Non riesco a cambiare il mio stato vocale (${e.message}). ` +
+          'Dai al ruolo del bot i permessi "Silenzia membri" e "Silenzia gli altri (Rendi sordi i membri)".',
+      );
+    }
+  }
 }
 
 /* ---------- Riproduzione: saluto -> musichetta in loop ---------- */
@@ -264,6 +292,8 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
       console.log('Il bot è stato disconnesso/spostato, rientro...');
       stopMixer();
       scheduleRejoin(500);
+    } else if (newState.channelId === CHANNEL_ID) {
+      enforceVoiceState(newState);
     }
     return;
   }
