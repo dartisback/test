@@ -21,6 +21,15 @@ const googleTTS = require('google-tts-api');
 // Usa il ffmpeg incluso nel pacchetto (non serve installarlo a mano)
 process.env.FFMPEG_PATH = require('ffmpeg-static');
 
+// Controllo librerie: se sono vecchie l'audio NON funziona (Discord richiede DAVE)
+try {
+  const v = require('@discordjs/voice/package.json').version;
+  require('@snazzah/davey');
+  console.log(`Librerie voce OK (@discordjs/voice ${v}, DAVE presente).`);
+} catch {
+  console.error('!! Librerie vocali vecchie o mancanti: chiudi il bot, cancella la cartella node_modules e rilancia avvia-bot.bat');
+}
+
 const TOKEN = process.env.DISCORD_TOKEN;
 const CHANNEL_ID = process.env.VOICE_CHANNEL_ID;
 const STAFF_ROLE_ID = process.env.STAFF_ROLE_ID;
@@ -58,15 +67,27 @@ let phase = 'idle'; // idle | greeting | music
 /* ---------- Voce (TTS) ---------- */
 
 async function prepareGreeting() {
-  if (fs.existsSync(GREETING_FILE)) return;
-  const url = googleTTS.getAudioUrl(GREETING_TEXT, {
-    lang: 'it',
-    slow: false,
-    host: 'https://translate.google.com',
-  });
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`TTS HTTP ${res.status}`);
-  fs.writeFileSync(GREETING_FILE, Buffer.from(await res.arrayBuffer()));
+  if (fs.existsSync(GREETING_FILE)) {
+    if (fs.statSync(GREETING_FILE).size > 2000) return true;
+    fs.unlinkSync(GREETING_FILE); // file corrotto: rigenera
+  }
+  try {
+    const url = googleTTS.getAudioUrl(GREETING_TEXT, {
+      lang: 'it',
+      slow: false,
+      host: 'https://translate.google.com',
+    });
+    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const buf = Buffer.from(await res.arrayBuffer());
+    if (buf.length < 2000) throw new Error('risposta audio vuota');
+    fs.writeFileSync(GREETING_FILE, buf);
+    console.log('Saluto vocale generato.');
+    return true;
+  } catch (e) {
+    console.warn('!! Saluto vocale NON generato (serve internet):', e.message);
+    return false;
+  }
 }
 
 /* ---------- Connessione al canale (mutato/deaf) ---------- */
@@ -158,11 +179,16 @@ function playMusic() {
   player.play(createAudioResource(MUSIC_FILE));
 }
 
-function startWaitingSequence() {
+async function startWaitingSequence() {
   if (phase !== 'idle') return; // già in corso per qualcuno in attesa
+  phase = 'greeting';
 
-  if (fs.existsSync(GREETING_FILE)) {
-    phase = 'greeting';
+  // se manca il file del saluto prova a rigenerarlo al volo
+  const ok = await prepareGreeting();
+  if (phase !== 'greeting') return; // nel frattempo tutti sono usciti
+
+  if (ok) {
+    console.log('Riproduco il saluto...');
     player.play(createAudioResource(GREETING_FILE));
   } else {
     playMusic();
@@ -176,6 +202,8 @@ player.on(AudioPlayerStatus.Idle, () => {
   }
   playMusic(); // dopo il saluto parte la musichetta, e poi si ripete in loop
 });
+
+player.on('stateChange', (o, n) => console.log(`[audio] ${o.status} -> ${n.status}`));
 
 player.on('error', (err) => {
   console.error('Errore player:', err.message);
@@ -228,7 +256,8 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
   const left = oldState.channelId === CHANNEL_ID && newState.channelId !== CHANNEL_ID;
 
   if (joined) {
-    startWaitingSequence();
+    console.log(`${newState.member.displayName} è entrato in attesa.`);
+    startWaitingSequence().catch(console.error);
     notifyStaff(newState.member, newState.channel).catch(console.error);
   } else if (left && humansInChannel() === 0) {
     phase = 'idle';

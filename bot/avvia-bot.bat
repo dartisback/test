@@ -2,16 +2,14 @@
 cd /d "%~dp0"
 title Bot Assistenza - Next Rome RP
 
-if not exist node_modules (
-  echo Installo le dipendenze...
-  call npm install
-)
-
 if not exist .env (
   echo Manca il file .env! Copia .env.example in .env e inserisci il token.
   pause
   exit /b 1
 )
+
+echo Controllo/aggiorno le dipendenze...
+call npm install --no-audit --no-fund
 
 :loop
 node index.js
