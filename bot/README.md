@@ -15,11 +15,17 @@ Quando un utente entra:
 3. Il bot deve avere i permessi *Connetti*, *Parla*, **Silenzia membri** e **Escludi l'audio dei membri** (Rendi sordi) sul canale vocale: servono per mettersi le cuffie barrate e per smutarsi da solo.
 4. Avvia con `avvia-bot.bat` (la prima volta installa da solo le dipendenze; serve Node.js 18+).
 
-## Avvio insieme al server FiveM
-Nel tuo `start.bat`, aggiungi questa riga (adatta il percorso):
+## Avvio (anche senza finestra)
+- `avvia-bot.bat` → avvia il bot in una finestra cmd. **Se chiudi la finestra il bot va offline.**
+- `avvia-bot-nascosto.vbs` → avvia il bot **in background**, senza finestra: resta online anche se chiudi tutto.
+- `ferma-bot.bat` → ferma il bot (quello nascosto o quello in finestra).
+
+Per avviarlo insieme al server FiveM, nel tuo `start.bat` aggiungi (adatta il percorso):
 ```
-start "Bot Assistenza" /min cmd /c "C:\percorso\bot\avvia-bot.bat"
+wscript "C:\percorso\bot\avvia-bot-nascosto.vbs"
 ```
+Se riavvii il PC il bot deve essere riavviato (cioè basta rilanciare il tuo `start.bat`).
+Il log non si vede più: per vederlo usa `avvia-bot.bat`.
 
 ## Musica d'attesa
 Di default usa `attesa.wav` (generata da `genera-attesa.js`). Per usare la tua, metti un
