@@ -23,7 +23,9 @@ process.env.FFMPEG_PATH = require('ffmpeg-static');
 
 // Controllo librerie: se sono vecchie l'audio NON funziona (Discord richiede DAVE)
 try {
-  const v = require('@discordjs/voice/package.json').version;
+  const v = JSON.parse(
+    fs.readFileSync(path.join(path.dirname(require.resolve('@discordjs/voice')), '..', 'package.json'), 'utf8'),
+  ).version;
   require('@snazzah/davey');
   console.log(`Librerie voce OK (@discordjs/voice ${v}, DAVE presente).`);
 } catch {
