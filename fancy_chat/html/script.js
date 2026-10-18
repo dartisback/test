@@ -14,7 +14,8 @@
             body: JSON.stringify(data || {}),
         }).catch(() => {});
 
-    const cfg = { maxLength: 200, displayTime: 9000, maxMessages: 100 };
+    const cfg = { maxLength: 200, displayTime: 9000, maxMessages: 100, neon: true };
+    chat.classList.add('neon');
     let isOpen = false;
     let suggestions = [];
     let matches = [];
@@ -259,7 +260,10 @@
     // ----------------------------------------------------------------
     window.addEventListener('message', ({ data }) => {
         switch (data.action) {
-            case 'config': Object.assign(cfg, { maxLength: data.maxLength, displayTime: data.displayTime, maxMessages: data.maxMessages }); break;
+            case 'config':
+                Object.assign(cfg, { maxLength: data.maxLength, displayTime: data.displayTime, maxMessages: data.maxMessages, neon: data.neon !== false });
+                chat.classList.toggle('neon', cfg.neon);
+                break;
             case 'suggestions': suggestions = data.list || []; if (isOpen) updateSuggestions(); break;
             case 'add': addMessage(data.msg || {}); break;
             case 'open': open(); break;

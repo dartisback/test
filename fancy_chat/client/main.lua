@@ -70,6 +70,7 @@ RegisterNUICallback('ready', function(_, cb)
         maxLength = Config.MaxLength,
         displayTime = Config.DisplayTime,
         maxMessages = Config.MaxMessages,
+        neon = Config.NeonTricolore,
     })
     pushSuggestions()
     cb('ok')

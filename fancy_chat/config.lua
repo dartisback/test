@@ -7,6 +7,7 @@ Config.OpenKey       = 'T'      -- tasto per aprire la chat (cambiabile da Impos
 Config.DisplayTime   = 9000     -- ms in cui un messaggio resta visibile a chat chiusa
 Config.MaxMessages   = 100      -- messaggi massimi conservati nella cronologia
 Config.MaxLength     = 200      -- lunghezza massima di un messaggio
+Config.NeonTricolore = true     -- grafica neon tricolore (verde / bianco / rosso)
 
 -- Chat locale: un messaggio senza "/" viene letto solo dai giocatori vicini
 Config.LocalChat = {
@@ -131,7 +132,7 @@ Config.Commands = {
         title      = 'POLIZIA DI STATO',
         color      = '#2563eb',
         icon       = 'img/jobs/police.png',
-        fx         = 'siren',
+        fx         = 'siren',   -- lampeggianti BLU
         jobs       = { 'police' },
         recipients = 'all',
     },

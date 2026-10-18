@@ -244,20 +244,27 @@ html, body {
     50%      { box-shadow: 0 0 26px 4px rgba(var(--rgb), .85); transform: scale(1.07); }
 }
 
-.fx-siren::before { animation: sirenBar .7s steps(1) infinite; }
-.fx-siren { animation: pop .6s cubic-bezier(.2, 1.25, .35, 1) both, sirenGlow .7s steps(1) infinite; }
-.fx-siren .icon { animation: sirenIcon .7s steps(1) infinite; }
+/* sirena: in Italia i lampeggianti sono BLU -> solo sfumature di blu, a doppio lampo */
+.fx-siren::before,
+#chat.neon .msg.fx-siren::before { animation: sirenBar 1s steps(1) infinite; background-size: auto; width: 5px; }
+.fx-siren { animation: pop .6s cubic-bezier(.2, 1.25, .35, 1) both, sirenGlow 1s steps(1) infinite; }
+#chat.neon .msg.fx-siren { animation: pop .6s cubic-bezier(.2, 1.25, .35, 1) both, sirenGlow 1s steps(1) infinite; }
+.fx-siren .icon { animation: sirenIcon 1s steps(1) infinite; }
+.fx-siren .life, #chat.neon .fx-siren .life { background: #2f6bff; box-shadow: 0 0 10px #2f6bff; }
 @keyframes sirenBar {
-    0%   { background: #ef4444; box-shadow: 0 0 16px #ef4444; }
-    50%  { background: #3b82f6; box-shadow: 0 0 16px #3b82f6; }
+    0%, 20%       { background: #3b82ff; box-shadow: 0 0 18px 2px #1f6bff; }
+    10%, 30%      { background: #0b2a8f; box-shadow: 0 0 4px #0b2a8f; }
+    40%, 100%     { background: #0b2a8f; box-shadow: 0 0 4px #0b2a8f; }
 }
 @keyframes sirenGlow {
-    0%   { box-shadow: 0 6px 22px rgba(239, 68, 68, .45), 0 0 0 1px rgba(255, 255, 255, .05) inset; }
-    50%  { box-shadow: 0 6px 22px rgba(59, 130, 246, .5), 0 0 0 1px rgba(255, 255, 255, .05) inset; }
+    0%, 20%       { box-shadow: 0 6px 22px rgba(47, 107, 255, .65), 0 0 0 1px rgba(80, 150, 255, .35) inset; }
+    10%, 30%      { box-shadow: 0 6px 22px rgba(0, 0, 0, .38), 0 0 0 1px rgba(255, 255, 255, .05) inset; }
+    40%, 100%     { box-shadow: 0 6px 22px rgba(0, 0, 0, .38), 0 0 0 1px rgba(255, 255, 255, .05) inset; }
 }
 @keyframes sirenIcon {
-    0%   { box-shadow: 0 0 18px 3px rgba(239, 68, 68, .85); }
-    50%  { box-shadow: 0 0 18px 3px rgba(59, 130, 246, .85); }
+    0%, 20%       { box-shadow: 0 0 20px 4px rgba(47, 107, 255, .95); }
+    10%, 30%      { box-shadow: 0 0 4px rgba(11, 42, 143, .6); }
+    40%, 100%     { box-shadow: 0 0 4px rgba(11, 42, 143, .6); }
 }
 
 /* ================================================================
@@ -404,3 +411,66 @@ kbd {
     text-align: center;
     color: #cbd5e1;
 }
+
+/* ================================================================
+   TRICOLORE NEON (verde / bianco / rosso)  -  classe .neon su #chat
+   ================================================================ */
+:root {
+    --nv: #00ff66;   /* verde neon  */
+    --nb: #ffffff;   /* bianco neon */
+    --nr: #ff1744;   /* rosso neon  */
+}
+
+#chat.neon .msg {
+    box-shadow:
+        -5px 0 22px -8px var(--nv),
+        5px 0 22px -8px var(--nr),
+        0 6px 22px rgba(0, 0, 0, .38),
+        0 0 0 1px rgba(255, 255, 255, .06) inset;
+}
+
+/* barra laterale tricolore che scorre */
+#chat.neon .msg::before {
+    width: 5px;
+    background: linear-gradient(180deg, var(--nv) 0%, var(--nb) 33%, var(--nr) 66%, var(--nv) 100%);
+    background-size: 100% 300%;
+    box-shadow: 0 0 10px 1px rgba(0, 255, 102, .75), 0 0 10px 1px rgba(255, 23, 68, .75);
+    animation: triFlow 3s linear infinite;
+}
+@keyframes triFlow { from { background-position: 0 0; } to { background-position: 0 300%; } }
+
+/* barra del tempo tricolore */
+#chat.neon .life {
+    height: 3px;
+    background: linear-gradient(90deg, var(--nv) 0 33.3%, var(--nb) 33.3% 66.6%, var(--nr) 66.6% 100%);
+    box-shadow: 0 0 8px rgba(0, 255, 102, .8), 0 0 8px rgba(255, 23, 68, .8);
+}
+
+/* tag con filo neon */
+#chat.neon .tag { box-shadow: 0 0 8px rgba(var(--rgb), .7); }
+
+/* suggerimenti */
+#chat.neon .sug { position: relative; overflow: hidden; border-left: none; padding-left: 14px; box-shadow: 0 4px 14px rgba(0, 0, 0, .3), -4px 0 16px -8px var(--nv), 4px 0 16px -8px var(--nr); }
+#chat.neon .sug::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--nv) 0 33.3%, var(--nb) 33.3% 66.6%, var(--nr) 66.6% 100%);
+    box-shadow: 0 0 8px var(--nv), 0 0 8px var(--nr);
+}
+
+/* input: bordo neon tricolore animato */
+#chat.neon.open #inputbox {
+    border: 2px solid transparent;
+    background:
+        linear-gradient(#0b0d16, #0b0d16) padding-box,
+        linear-gradient(90deg, var(--nv), var(--nb), var(--nr), var(--nv)) border-box;
+    background-size: 100% 100%, 300% 100%;
+    animation: triBorder 4s linear infinite;
+    box-shadow: -8px 0 24px -8px var(--nv), 8px 0 24px -8px var(--nr), 0 0 14px -4px rgba(255, 255, 255, .5);
+}
+@keyframes triBorder { from { background-position: 0 0, 0 0; } to { background-position: 0 0, 300% 0; } }
+
+#chat.neon #counter.warn { color: #ffd54a; }
+#chat.neon kbd { border-color: rgba(0, 255, 102, .45); box-shadow: 0 0 6px -2px var(--nv); }
+#chat.neon.open #in-icon { box-shadow: 0 0 12px rgba(var(--rgb, 56, 189, 248), .6); }

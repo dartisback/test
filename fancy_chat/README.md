@@ -28,7 +28,9 @@ viene trovato da solo. Senza file si usa l'icona di default e un colore generato
 ## Compatibilita'
 Supporta `chat:addMessage`, `chat:addSuggestion(s)`, `chat:removeSuggestion`, `chat:clear`.
 Export server: `exports.fancy_chat:sendMessage(target, { title=, author=, text=, color=, icon=, fx= })`
-(`fx`: `glitch`, `wobble`, `shake`, `pulse`, `siren`).
+(`fx`: `glitch`, `wobble`, `shake`, `pulse`, `siren` = lampeggiante blu).
+
+Grafica tricolore neon (verde/bianco/rosso): `Config.NeonTricolore = true` (mettilo a `false` per il look classico).
 
 ## Se la chat di default parte lo stesso (metodo sicuro)
 Cerca nel server la cartella della chat originale (di solito `resources/[cfx-default]/[gameplay]/chat`)
