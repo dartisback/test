@@ -32,8 +32,14 @@ Export server: `exports.fancy_chat:sendMessage(target, { title=, author=, text=,
 
 Grafica tricolore neon (verde/bianco/rosso): `Config.NeonTricolore = true` (mettilo a `false` per il look classico).
 
-## Se la chat di default parte lo stesso (metodo sicuro)
-Cerca nel server la cartella della chat originale (di solito `resources/[cfx-default]/[gameplay]/chat`)
-e **cancellala o rinominala** (es. `chat_OFF`). Poi togli `ensure chat` dal `server.cfg`.
-Se vuoi puoi anche rinominare `fancy_chat` in `chat`: cosi' ogni script che dipende da "chat" usa questa.
+## Se la chat di default parte lo stesso (metodo sicuro, consigliato)
+Fai cosi', in questo ordine:
+1. **Tieni UNA sola copia di questa chat.** Se in `resources` ne hai due (es. `fancy_chat` e `chat`) cancellane una.
+2. **Cancella la chat originale**: di solito e' `resources/[cfx-default]/[gameplay]/chat`.
+   (Se vuoi tenerla di scorta, spostala fuori da `resources`, non basta rinominarla con "ensure chat" ancora nel cfg.)
+3. Nel `server.cfg` togli `ensure chat`, `start chat` e `ensure chat-theme-gtao`, lascia solo `ensure fancy_chat`.
+4. Riavvia il server (non basta il restart della risorsa).
+
+All'avvio la console dice da sola dove si trova la chat di default che ha fermato
+e quali script hanno `dependency 'chat'`.
 Altre chat da fermare (es. `okokChat`) vanno aggiunte in `Config.StopResources`.

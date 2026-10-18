@@ -252,18 +252,50 @@ end)
 -- ================================================================
 --  Ferma le chat concorrenti (la risorsa "chat" di default di FiveM ecc.)
 --  Controlla di continuo, cosi' se un altro script la riavvia viene rifermata.
+--  Una copia di fancy_chat (anche se rinominata "chat") NON viene fermata.
 -- ================================================================
 local warned = {}
 
+local function isOurs(name)
+    return GetResourceMetadata(name, 'name', 0) == 'fancy_chat'
+end
+
+-- Trova gli script che hanno "dependency 'chat'" (sono loro a far ripartire la chat di default)
+local function findDependents(target)
+    local found = {}
+    for i = 0, GetNumResources() - 1 do
+        local res = GetResourceByFindIndex(i)
+        for _, key in ipairs({ 'dependency', 'dependencies' }) do
+            for n = 0, GetNumResourceMetadata(res, key) - 1 do
+                if GetResourceMetadata(res, key, n) == target and res ~= resource then
+                    found[#found + 1] = res
+                end
+            end
+        end
+    end
+    return found
+end
+
 local function stopOtherChats()
     for _, name in ipairs(Config.StopResources) do
-        if name ~= resource then
-            local state = GetResourceState(name)
-            if state == 'started' or state == 'starting' then
+        local state = GetResourceState(name)
+        if name ~= resource and (state == 'started' or state == 'starting') then
+            if isOurs(name) then
+                if not warned['dup:' .. name] then
+                    warned['dup:' .. name] = true
+                    print(('^3[%s] ATTENZIONE: esiste una COPIA di fancy_chat chiamata "%s" (%s). Tieni UNA sola cartella: cancella l\'altra e toglila dal server.cfg.^7'):format(resource, name, GetResourcePath(name)))
+                end
+            else
                 StopResource(name)
                 if not warned[name] then
                     warned[name] = true
-                    print(('[%s] la risorsa "%s" era avviata: fermata. Toglila dal server.cfg e da ogni "dependency \'%s\'" negli altri script.'):format(resource, name, name))
+                    local deps = findDependents(name)
+                    print(('^3[%s] la chat di default "%s" era avviata ed e\' stata fermata.^7'):format(resource, name))
+                    print(('^3[%s]   cartella da cancellare: %s^7'):format(resource, GetResourcePath(name)))
+                    print(('^3[%s]   tolta dal server.cfg? cerca "ensure %s" / "start %s"^7'):format(resource, name, name))
+                    if #deps > 0 then
+                        print(('^3[%s]   script che la richiamano (dependency \'%s\'): %s^7'):format(resource, name, table.concat(deps, ', ')))
+                    end
                 end
             end
         end
@@ -273,7 +305,18 @@ end
 CreateThread(function()
     while Config.StopDefaultChat do
         stopOtherChats()
-        Wait(2000)
+        Wait(1000)
+    end
+end)
+
+AddEventHandler('onResourceStart', function(name)
+    for _, blocked in ipairs(Config.StopResources) do
+        if name == blocked and name ~= resource then
+            CreateThread(function()
+                Wait(0)
+                stopOtherChats()
+            end)
+        end
     end
 end)
 
