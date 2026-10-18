@@ -15,7 +15,9 @@ const {
   AudioPlayerStatus,
   VoiceConnectionStatus,
   NoSubscriberBehavior,
+  StreamType,
 } = require('@discordjs/voice');
+const { WaitingMixer, decodeToPcm } = require('./mixer');
 const googleTTS = require('google-tts-api');
 
 // Usa il ffmpeg incluso nel pacchetto (non serve installarlo a mano)
@@ -64,11 +66,25 @@ const player = createAudioPlayer({
 });
 
 let connection = null;
-let phase = 'idle'; // idle | greeting | music
+let mixer = null; // esiste solo finché c'è qualcuno in attesa
+let greetingPcm = null;
 
 /* ---------- Voce (TTS) ---------- */
 
 async function prepareGreeting() {
+  const ok = await downloadGreeting();
+  if (ok && !greetingPcm) {
+    try {
+      greetingPcm = await decodeToPcm(process.env.FFMPEG_PATH, GREETING_FILE);
+    } catch (e) {
+      console.warn('!! Saluto non decodificabile:', e.message);
+      return false;
+    }
+  }
+  return ok;
+}
+
+async function downloadGreeting() {
   if (fs.existsSync(GREETING_FILE)) {
     if (fs.statSync(GREETING_FILE).size > 2000) return true;
     fs.unlinkSync(GREETING_FILE); // file corrotto: rigenera
@@ -142,8 +158,7 @@ async function joinChannel() {
 
     await entersState(conn, VoiceConnectionStatus.Ready, 30_000);
     console.log(`Connesso a "${channel.name}".`);
-    phase = 'idle';
-    if (humansInChannel() > 0) playMusic(); // c'è già gente in attesa
+    if (humansInChannel() > 0) startMixer(false); // c'è già gente in attesa: solo musica
   } finally {
     joining = false;
   }
@@ -171,45 +186,46 @@ function humansInChannel() {
   return channel.members.filter((m) => !m.user.bot).size;
 }
 
-function playMusic() {
-  if (!MUSIC_FILE) {
-    phase = 'idle';
-    console.warn('Nessun file attesa.mp3 / attesa.wav trovato: niente musichetta.');
-    return;
-  }
-  phase = 'music';
-  player.play(createAudioResource(MUSIC_FILE));
+function startMixer(withGreeting) {
+  if (mixer) return;
+  if (!MUSIC_FILE) console.warn('Nessun file attesa.mp3 / attesa.wav trovato: niente musichetta.');
+  mixer = new WaitingMixer({
+    ffmpeg: process.env.FFMPEG_PATH,
+    musicFile: MUSIC_FILE,
+    greetingPcm,
+    withGreeting,
+  });
+  player.play(createAudioResource(mixer, { inputType: StreamType.Raw }));
 }
 
-async function startWaitingSequence() {
-  if (phase !== 'idle') return; // già in corso per qualcuno in attesa
-  phase = 'greeting';
+function stopMixer() {
+  if (!mixer) return;
+  const m = mixer;
+  mixer = null;
+  player.stop(true);
+  m.destroy();
+}
 
-  // se manca il file del saluto prova a rigenerarlo al volo
-  const ok = await prepareGreeting();
-  if (phase !== 'greeting') return; // nel frattempo tutti sono usciti
-
-  if (ok) {
-    console.log('Riproduco il saluto...');
-    player.play(createAudioResource(GREETING_FILE));
+// Una persona è entrata: il saluto è suo. Se qualcuno sta già ascoltando la musica,
+// questa NON si interrompe e NON riparte: il saluto le si sovrappone.
+async function greetNewcomer() {
+  if (!greetingPcm) await prepareGreeting(); // riprova se prima era fallito
+  if (humansInChannel() === 0) return;
+  if (mixer) {
+    console.log('Saluto sovrapposto alla musica in corso.');
+    mixer.queueGreeting();
   } else {
-    playMusic();
+    console.log('Riproduco il saluto, poi la musica...');
+    startMixer(true);
   }
 }
-
-player.on(AudioPlayerStatus.Idle, () => {
-  if (humansInChannel() === 0) {
-    phase = 'idle';
-    return;
-  }
-  playMusic(); // dopo il saluto parte la musichetta, e poi si ripete in loop
-});
 
 player.on('stateChange', (o, n) => console.log(`[audio] ${o.status} -> ${n.status}`));
 
 player.on('error', (err) => {
   console.error('Errore player:', err.message);
-  phase = 'idle';
+  stopMixer();
+  if (humansInChannel() > 0) setTimeout(() => !mixer && startMixer(false), 1_000);
 });
 
 /* ---------- Avviso staff in DM ---------- */
@@ -246,8 +262,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
   if (newState.id === client.user.id) {
     if (newState.channelId !== CHANNEL_ID && !joining) {
       console.log('Il bot è stato disconnesso/spostato, rientro...');
-      phase = 'idle';
-      player.stop(true);
+      stopMixer();
       scheduleRejoin(500);
     }
     return;
@@ -259,11 +274,10 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
 
   if (joined) {
     console.log(`${newState.member.displayName} è entrato in attesa.`);
-    startWaitingSequence().catch(console.error);
+    greetNewcomer().catch(console.error);
     notifyStaff(newState.member, newState.channel).catch(console.error);
   } else if (left && humansInChannel() === 0) {
-    phase = 'idle';
-    player.stop(true);
+    stopMixer();
   }
 });
 
