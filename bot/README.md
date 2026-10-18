@@ -32,7 +32,7 @@ Di default usa `attesa.wav` (generata da `genera-attesa.js`). Per usare la tua, 
 file `attesa.mp3` nella cartella: ha la precedenza.
 
 ## Comandi slash
-Gli ID di ruoli e canali si mettono nel `.env` (vedi `.env.example`). Se manca un ID, il comando te lo dice.
+Gli ID di ruoli e canali sono in `config.js` (si possono sovrascrivere dal `.env`).
 Al primo avvio il bot registra i comandi da solo: il bot deve essere stato invitato con lo scope **applications.commands**
 (altrimenti nel log vedi "Missing Access": rigenera il link d'invito con `bot` + `applications.commands`).
 
