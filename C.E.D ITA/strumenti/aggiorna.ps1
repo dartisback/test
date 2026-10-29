@@ -15,7 +15,8 @@
 
 param(
     [string]$Zip,       # solo per prove: zip locale al posto del download
-    [string]$Commit     # solo per prove: versione da usare al posto di quella su GitHub
+    [string]$Commit,    # solo per prove: versione da usare al posto di quella su GitHub
+    [switch]$DaAvvio    # passato da AVVIA_SERVER.bat: quel file e' in esecuzione e non va sovrascritto
 )
 
 $ErrorActionPreference = 'Stop'
@@ -41,7 +42,7 @@ $chiaviServer = @(
     'sets sv_projectname', 'sets sv_projectdesc', 'sets tags', 'sets locale', 'sets banner_detail',
     'sets banner_connecting', 'load_server_icon', 'endpoint_add_tcp', 'endpoint_add_udp'
 )
-$fileUniti = @{ 'server-data/server.cfg' = $chiaviServer; 'server-data/permessi.cfg' = @() }
+$fileUniti = @{ 'server-data/server.cfg' = $chiaviServer; 'server-data/risorse.cfg' = @(); 'server-data/permessi.cfg' = @() }
 
 function Write-Ok($text)    { Write-Host "  [OK] $text" -ForegroundColor Green }
 function Write-Step($text)  { Write-Host "  > $text" -ForegroundColor Cyan }
@@ -208,7 +209,7 @@ try {
 
         $unmodified = $knownHashes.ContainsKey($rel) -and ($knownHashes[$rel] -contains $localHash)
 
-        if ($rel -eq 'AVVIA_SERVER.bat') {
+        if ($rel -eq 'AVVIA_SERVER.bat' -and $DaAvvio) {
             # e' il file in esecuzione: non si puo' sovrascrivere adesso
             Copy-Safe $file "$dest.nuovo"
             Write-Warn2 'AVVIA_SERVER.bat e'' cambiato: la versione nuova e'' in AVVIA_SERVER.bat.nuovo (rinominala a server spento).'

@@ -28,6 +28,7 @@ C.E.D ITA/
 ├── INSTALLA_RISORSE.bat      ← aggiorna ox_* (-Aggiorna) e riapplica il tema
 ├── artifacts/                ← QUI metti gli artifacts (FXServer.exe)
 ├── database/ced_ita.sql      ← tabelle + job (usato in automatico)
+├── database/illenium_appearance.sql ← solo le tabelle di illenium-appearance (da importare a mano se serve)
 ├── anteprime/                ← immagini della grafica
 ├── strumenti/                ← script (avvio, aggiornamento, database, XAMPP, temi)
 └── server-data/
@@ -47,21 +48,24 @@ C.E.D ITA/
 
 ## Aggiornamenti automatici
 
-Ogni volta che lanci `AVVIA_SERVER.bat`, prima di accendere il server:
+Il server **si aggiorna da solo quando parte**, sia se lo avvii da **FXServer / txAdmin** sia con
+`AVVIA_SERVER.bat`: in `server.cfg` la risorsa `ced_aggiornamenti` parte per prima, controlla GitHub
+e, se c'è una versione nuova, la applica prima che partano le altre risorse.
 
-1. controlla su GitHub se c'è una versione nuova (se non c'è internet parte e basta);
-2. aggiorna **solo i file che non hai modificato tu**;
-3. `server.cfg` e `permessi.cfg` vengono uniti: restano **la tua key, il database, il nome del server**
-   e tutte le righe che hai aggiunto tu (in fondo, sotto "RIGHE AGGIUNTE DA TE");
-4. se hai modificato un altro file, tiene il **tuo** e mette quello nuovo in `backup\aggiornamento_<data>\nuove_versioni`;
-5. non tocca mai `artifacts`, `backup`, la cache e le risorse che hai aggiunto tu.
+- aggiorna **solo i file che non hai modificato tu**;
+- `server.cfg`, `risorse.cfg` e `permessi.cfg` vengono uniti: restano **la tua key, il database,
+  il nome del server** e tutte le righe che hai aggiunto o cambiato tu (in fondo, sotto "RIGHE AGGIUNTE DA TE");
+- se hai modificato un altro file, tiene il **tuo** e mette quello nuovo in `backup\aggiornamento_<data>\nuove_versioni`;
+- non tocca mai `artifacts`, `backup`, la cache e le risorse che hai aggiunto tu;
+- se manca internet il server parte normalmente con i file attuali.
 
-Puoi anche aggiornare senza avviare con `AGGIORNA.bat`.
+`server.cfg` contiene solo le tue impostazioni; l'elenco delle risorse è in `risorse.cfg`.
+Puoi aggiornare anche a server spento con `AGGIORNA.bat`.
 Per disattivare gli aggiornamenti crea un file vuoto `NON_AGGIORNARE.txt` nella cartella principale.
 
-> **Se arrivi da una versione senza aggiornamenti automatici** (passo da fare una volta sola):
-> scarica lo ZIP, copia nella tua cartella `AVVIA_SERVER.bat`, `AGGIORNA.bat` e la cartella `strumenti`
-> (sovrascrivi), poi avvia `AVVIA_SERVER.bat`: il resto si aggiorna da solo.
+> **Passo da fare una volta sola** (se la tua cartella non ha ancora `ced_aggiornamenti`):
+> scarica lo ZIP, copia nella tua cartella `AGGIORNA.bat` e la cartella `strumenti` (sovrascrivi),
+> poi fai doppio clic su `AGGIORNA.bat`. Da quel momento basta avviare il server come fai sempre.
 
 ---
 
