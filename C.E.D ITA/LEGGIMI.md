@@ -16,6 +16,7 @@ C.E.D ITA/
 ├── AVVIA_SERVER.bat          ← avvia il server
 ├── AVVIA_TXADMIN.bat         ← (facoltativo) avvia con il pannello txAdmin
 ├── CREA_DATABASE.bat         ← crea il database (lo fa già AVVIA_SERVER.bat)
+├── RIPARA_MYSQL_XAMPP.bat    ← ripara "MySQL shutdown unexpectedly" senza perdere i dati
 ├── INSTALLA_RISORSE.bat      ← aggiorna ox_* (-Aggiorna) e riapplica il tema
 ├── artifacts/                ← QUI metti gli artifacts (FXServer.exe)
 ├── database/ced_ita.sql      ← tabelle + job (usato in automatico)
@@ -140,6 +141,9 @@ ESX.ShowNotification("Pattuglia", "carabinieri", 5000, "Centrale Operativa")
 ## Problemi comuni
 
 - **"Couldn't find resource fivepd"** → non hai ancora messo FivePD (passo 4).
+- **XAMPP: "Error: MySQL shutdown unexpectedly"** → chiudi il pannello XAMPP e lancia `RIPARA_MYSQL_XAMPP.bat`.
+  Ricrea i file di sistema di MySQL dalla copia pulita di XAMPP e ci rimette dentro i tuoi database
+  (la cartella vecchia resta in `xampp\mysql\data_old_...`). Per evitarlo: premi sempre **Stop** su MySQL prima di spegnere il PC.
 - **"Impossibile collegarsi a MySQL"** → MySQL non è avviato in XAMPP, oppure la password nella `mysql_connection_string` è sbagliata.
 - **"Non trovo mysql.exe"** → installa XAMPP oppure usa `CREA_DATABASE.bat -MySql "C:\percorso\mysql.exe"`.
 - **"ESX Requires a minimum Artifact version"** → scarica artifacts più recenti.
