@@ -1,0 +1,28 @@
+=====================================================================
+  RISORSE OVEREXTENDED (oxmysql, ox_lib, ox_inventory)
+=====================================================================
+
+Sono GIA' INCLUSE in questa cartella (release ufficiali GitHub):
+
+   oxmysql         2.14.3
+   ox_lib          3.41.0   (+ cfxlua-require, richiesto da ox_lib)
+   ox_inventory    2.48.1   (con il tema grafico C.E.D ITA gia' applicato)
+
+Per aggiornarle in futuro all'ultima versione:
+   apri un prompt nella cartella "C.E.D ITA" e lancia
+       INSTALLA_RISORSE.bat -Aggiorna
+   La versione vecchia viene spostata nella cartella "backup" e il tema
+   viene riapplicato in automatico.
+
+Se lo script non funziona, scaricale a mano (file .zip nella sezione
+"Assets" dell'ultima release, NON "Source code"):
+
+   https://github.com/overextended/oxmysql/releases/latest
+   https://github.com/overextended/ox_lib/releases/latest
+   https://github.com/overextended/ox_inventory/releases/latest
+
+ed estraile qui sostituendo le cartelle, poi lancia INSTALLA_RISORSE.bat
+(senza -Aggiorna) per riapplicare il tema a ox_inventory.
+
+Gli oggetti dell'inventario si modificano in:
+   [ox]\ox_inventory\data\items.lua

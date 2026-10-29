@@ -1,0 +1,216 @@
+-- SPDX-License-Identifier: GPL-3.0-only
+-- Copyright (C) 2022-2026 ESX Framework
+
+---@class ESXAccount
+---@field name string               # Account name (e.g., "bank", "money").
+---@field money number              # Current balance in this account.
+---@field label string              # Human-readable label for the account.
+---@field round boolean             # Whether amounts are rounded for display.
+---@field index number              # Index of the account in the player's accounts list.
+
+---@class ESXItem
+---@field name string               # Item identifier (internal name).
+---@field label string              # Display name of the item.
+---@field weight number             # Weight of a single unit of the item.
+---@field usable boolean            # Whether the item can be used.
+---@field rare boolean              # Whether the item is rare.
+---@field canRemove boolean         # Whether the item can be removed from inventory.
+
+---@class ESXInventoryItem:ESXItem
+---@field count number              # Number of this item in the player's inventory.
+
+---@class ESXJob
+---@field id number                 # Job ID.
+---@field name string               # Job internal name.
+---@field label string              # Job display label.
+---@field grade number              # Current grade/rank number.
+---@field grade_name string         # Name of the current grade.
+---@field grade_label string        # Label of the current grade.
+---@field grade_salary number       # Salary for the current grade.
+---@field skin_male table           # Skin configuration for male characters.
+---@field skin_female table         # Skin configuration for female characters.
+---@field onDuty boolean?           # Whether the player is currently on duty.
+
+---@class ESXWeapon
+---@field name string               # Weapon identifier (internal name).
+---@field label string              # Weapon display name.
+
+---@class ESXInventoryWeapon:ESXWeapon
+---@field ammo number               # Amount of ammo in the weapon.
+---@field components string[]       # List of components attached to the weapon.
+---@field tintIndex number          # Current weapon tint index.
+
+---@class ESXWeaponComponent
+---@field name string               # Component identifier (internal name).
+---@field label string              # Component display name.
+---@field hash string|number        # Component hash or identifier.
+
+---@class StaticPlayer
+---@field src number                                              # Player's server ID.
+--- Money Functions
+---@field setMoney fun(money: number)                             # Set player's cash balance.
+---@field getMoney fun(): number                                   # Get player's current cash balance.
+---@field addMoney fun(money: number, reason: string)             # Add money to the player's cash balance.
+---@field removeMoney fun(money: number, reason: string)          # Remove money from the player's cash balance.
+---@field setAccountMoney fun(accountName: string, money: number, reason?: string)  # Set specific account balance.
+---@field addAccountMoney fun(accountName: string, money: number, reason?: string)  # Add money to an account.
+---@field removeAccountMoney fun(accountName: string, money: number, reason?: string) # Remove money from an account.
+---@field getAccount fun(account: string): ESXAccount?            # Get account data by name.
+---@field getAccounts fun(minimal?: boolean): ESXAccount[]|table<string,number>  # Get all accounts, optionally minimal.
+--- Inventory Functions
+---@field getInventory fun(minimal?: boolean): ESXInventoryItem[]|table<string,number>  # Get inventory, optionally minimal.
+---@field getInventoryItem fun(itemName: string): ESXInventoryItem? # Get a specific item. Returns a zero-count entry for known items, nil for unknown items.
+---@field addInventoryItem fun(itemName: string, count: number)     # Add items to inventory.
+---@field removeInventoryItem fun(itemName: string, count: number)  # Remove items from inventory.
+---@field setInventoryItem fun(itemName: string, count: number)     # Set item count in inventory.
+---@field getWeight fun(): number                                   # Get current carried weight.
+---@field getMaxWeight fun(): number                                # Get maximum carry weight.
+---@field setMaxWeight fun(newWeight: number)                       # Set maximum carry weight.
+---@field canCarryItem fun(itemName: string, count: number): boolean # Check if player can carry more of an item.
+---@field canSwapItem fun(firstItem: string, firstItemCount: number, testItem: string, testItemCount: number): boolean # Check if items can be swapped.
+---@field hasItem fun(item: string): ESXInventoryItem|false, number? # Check if player has an item.
+---@field getLoadout fun(minimal?: boolean): ESXInventoryWeapon[]|table<string, {ammo:number, tintIndex?:number, components?:string[]}> # Get player's weapon loadout.
+--- Job Functions
+---@field getJob fun(): ESXJob                                         # Get player's current job.
+---@field setJob fun(newJob: string, grade: string, onDuty?: boolean)  # Set player's job and grade.
+---@field setGroup fun(newGroup: string)                               # Set player's permission group.
+---@field getGroup fun(): string                                       # Get player's permission group.
+--- Weapon Functions
+---@field addWeapon fun(weaponName: string, ammo: number)                 # Give player a weapon.
+---@field removeWeapon fun(weaponName: string)                             # Remove weapon from player.
+---@field hasWeapon fun(weaponName: string): boolean                       # Check if player has a weapon.
+---@field getWeapon fun(weaponName: string): number?, table?               # Get weapon ammo & components.
+---@field addWeaponAmmo fun(weaponName: string, ammoCount: number)        # Add ammo to a weapon.
+---@field removeWeaponAmmo fun(weaponName: string, ammoCount: number)     # Remove ammo from a weapon.
+---@field updateWeaponAmmo fun(weaponName: string, ammoCount: number)     # Update ammo count for a weapon.
+---@field addWeaponComponent fun(weaponName: string, weaponComponent: string)    # Add component to weapon.
+---@field removeWeaponComponent fun(weaponName: string, weaponComponent: string) # Remove component from weapon.
+---@field hasWeaponComponent fun(weaponName: string, weaponComponent: string): boolean # Check if weapon has component.
+---@field setWeaponTint fun(weaponName: string, weaponTintIndex: number) # Set weapon tint.
+---@field getWeaponTint fun(weaponName: string): number                  # Get weapon tint.
+--- Player State Functions
+---@field getIdentifier fun(): string                              # Get player's unique identifier.
+---@field getSSN fun(): string                                      # Get player's social security number.
+---@field getSource fun(): number                                  # Get player source/server ID.
+---@field getPlayerId fun(): number                                # Alias for getSource.
+---@field getName fun(): string                                     # Get player's name.
+---@field setName fun(newName: string)                              # Set player's name.
+---@field setCoords fun(coordinates: vector4|vector3|table)        # Teleport player to coordinates.
+---@field getCoords fun(vector?: boolean, heading?: boolean): vector3|vector4|table # Get player's coordinates.
+---@field isAdmin fun(): boolean                                    # Check if player is admin.
+---@field isCurrent fun(): boolean                                  # Check if this player session is still active.
+---@field kick fun(reason: string)                                  # Kick player from server.
+---@field getPlayTime fun(): number                                  # Get total playtime in seconds.
+---@field set fun(k: string, v: any, replicate?: boolean)           # Set custom variable; replicate defaults to true.
+---@field get fun(k: string): any                                    # Get custom variable.
+--- Metadata Functions
+---@field getMeta fun(index?: string, subIndex?: string|table): any   # Get metadata value(s).
+---@field setMeta fun(index: string, value: any, subValue?: any)      # Set metadata value(s).
+---@field clearMeta fun(index: string, subValues?: string|table)      # Clear metadata value(s).
+--- Notification Functions
+---@field showNotification fun(msg: string, notifyType?: string, length?: number, title?: string, position?: string) # Show a simple notification.
+---@field showAdvancedNotification fun(sender: string, subject: string, msg: string, textureDict: string, iconType: string, flash: boolean, saveToBrief: boolean, hudColorIndex: number) # Show advanced notification.
+---@field showHelpNotification fun(msg: string, thisFrame?: boolean, beep?: boolean, duration?: number) # Show help notification.
+--- Misc Functions
+---@field togglePaycheck fun(toggle: boolean)     # Enable/disable paycheck.
+---@field isPaycheckEnabled fun(): boolean       # Check if paycheck is enabled.
+---@field executeCommand fun(command: string)    # Execute a server command.
+---@field triggerEvent fun(eventName: string, ...) # Trigger client event for this player.
+
+
+---@class xPlayer:StaticPlayer
+--- Properties
+---@field accounts ESXAccount[]     # Array of the player's accounts.
+---@field coords table              # Player's coordinates {x, y, z, heading}.
+---@field group string              # Player permission group.
+---@field identifier string         # Unique identifier (usually Steam or license).
+---@field license string            # Player license string.
+---@field inventory ESXInventoryItem[] # Owned items (count > 0) sorted by label.
+---@field job ESXJob                # Player's current job.
+---@field loadout ESXInventoryWeapon[] # Player's current weapons.
+---@field name string               # Player's display name.
+---@field playerId number           # Player's ID (server ID).
+---@field source number             # Player's source (alias for playerId).
+---@field variables table           # Custom player variables.
+---@field weight number             # Current carried weight.
+---@field maxWeight number          # Maximum carry weight.
+---@field metadata table            # Custom metadata table.
+---@field lastPlaytime number       # Last recorded playtime in seconds.
+---@field paycheckEnabled boolean   # Whether paycheck is enabled.
+---@field admin boolean             # Whether the player is an admin.
+
+---@param playerId number
+---@param identifier string
+---@param ssn string
+---@param group string
+---@param accounts ESXAccount[]
+---@param inventory table
+---@param weight number
+---@param job ESXJob
+---@param loadout ESXInventoryWeapon[]
+---@param name string
+---@param coords vector4|{x: number, y: number, z: number, heading: number}
+---@param metadata table
+---@return xPlayer
+function CreateExtendedPlayer(playerId, identifier, ssn, group, accounts, inventory, weight, job, loadout, name, coords, metadata)
+    ---@diagnostic disable-next-line: missing-fields
+    local self = {} ---@type xPlayer
+
+    self.accounts = accounts
+    self.coords = coords
+    self.group = group
+    self.identifier = identifier
+    self.ssn = ssn
+    self.inventory = inventory
+    self.job = job
+    self.loadout = loadout
+    self.name = name
+    self.playerId = playerId
+    self.source = playerId
+    self.variables = {}
+    self.weight = weight
+    self.maxWeight = Config.MaxWeight
+    self.metadata = metadata
+    self.lastPlaytime = self.metadata.lastPlaytime or 0
+    self.paycheckEnabled = true
+    self.admin = Core.IsPlayerAdmin(playerId)
+    if Config.Multichar then
+        local startIndex = identifier:find(":", 1)
+        if startIndex then
+            self.license = ("%s%s"):format(Config.Identifier, identifier:sub(startIndex, identifier:len()))
+        end
+    else
+        self.license = ("%s:%s"):format(Config.Identifier, identifier)
+    end
+
+    if type(self.metadata.jobDuty) ~= "boolean" then
+        self.metadata.jobDuty = self.job.name ~= "unemployed" and Config.DefaultJobDuty or false
+    end
+    job.onDuty = self.metadata.jobDuty
+
+    ExecuteCommand(("add_principal identifier.%s group.%s"):format(self.license, self.group))
+
+    local stateBag = Player(self.source).state
+    stateBag:set("identifier", self.identifier, false)
+    stateBag:set("license", self.license, false)
+    stateBag:set("job", self.job, true)
+    stateBag:set("group", self.group, true)
+    stateBag:set("name", self.name, true)
+
+
+    Core.PlayerClass.AttachBase(self)
+    Core.PlayerClass.AttachAccounts(self)
+    Core.PlayerClass.AttachInventory(self)
+    Core.PlayerClass.AttachJob(self)
+    Core.PlayerClass.AttachWeapons(self)
+    Core.PlayerClass.AttachNotifications(self)
+    Core.PlayerClass.AttachMetadata(self)
+
+    for _, funcs in pairs(Core.PlayerFunctionOverrides) do
+        for fnName, fn in pairs(funcs) do
+            self[fnName] = fn(self)
+        end
+    end
+
+    return self
+end

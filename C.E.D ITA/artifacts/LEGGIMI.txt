@@ -1,0 +1,14 @@
+=====================================================================
+  ARTIFACTS (FXServer)
+=====================================================================
+
+ 1) Scarica gli artifacts Windows "Recommended" da:
+      https://runtime.fivem.net/artifacts/fivem/build_server_windows/master/
+
+ 2) Estrai il file server.7z QUI DENTRO, in modo che il percorso sia:
+
+      artifacts\FXServer.exe
+
+    (insieme a FXServer.exe ci saranno la cartella "citizen" e altri file)
+
+ 3) Avvia il server con AVVIA_SERVER.bat nella cartella principale.

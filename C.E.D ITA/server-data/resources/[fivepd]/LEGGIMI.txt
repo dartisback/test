@@ -1,0 +1,45 @@
+=====================================================================
+  FIVEPD - dove metterlo
+=====================================================================
+
+FivePD non si puo' includere qui (si scarica dal sito ufficiale con il
+tuo account e ha la sua licenza), quindi va aggiunto a mano:
+
+ 1) Scarica FivePD dal sito ufficiale: https://fivepd.net
+ 2) Estrai lo zip e copia la cartella in modo che il percorso diventi:
+
+        server-data\resources\[fivepd]\fivepd\fxmanifest.lua
+
+    (la cartella DEVE chiamarsi "fivepd", tutto minuscolo, perche'
+     server.cfg contiene gia' la riga:  ensure fivepd)
+
+ 3) Configura FivePD seguendo la sua documentazione (file di config
+    dentro la cartella fivepd). Se FivePD ti chiede un database,
+    usa la stessa connessione MySQL del server oppure SQLite.
+
+---------------------------------------------------------------------
+  COLLEGAMENTO CON I JOB ESX
+---------------------------------------------------------------------
+La risorsa ced_forzeordine assegna in automatico i gruppi di permesso
+(ace) in base al job ESX:
+
+   job "polizia"     ->  group.polizia      (+ group.forzeordine)
+   job "carabinieri" ->  group.carabinieri  (+ group.forzeordine)
+
+Di default il gruppo viene dato solo quando sei IN SERVIZIO (/servizio).
+Si cambia in resources\[ced]\ced_forzeordine\config.lua
+(Config.AceSoloInServizio).
+
+In server-data\permessi.cfg trovi gia':
+   add_ace group.forzeordine fivepd allow
+   add_ace group.polizia     fivepd.polizia allow
+   add_ace group.carabinieri fivepd.carabinieri allow
+
+Se la tua versione di FivePD usa nomi di permesso diversi, sostituisci
+"fivepd", "fivepd.polizia" e "fivepd.carabinieri" con quelli indicati
+nella documentazione di FivePD: i gruppi group.polizia /
+group.carabinieri restano gli stessi.
+
+Nel config dei dipartimenti di FivePD crea due dipartimenti:
+   - Polizia Di Stato      (sigla PS)
+   - Arma Dei Carabinieri  (sigla CC)

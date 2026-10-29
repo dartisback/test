@@ -1,0 +1,197 @@
+-- SPDX-License-Identifier: GPL-3.0-only
+-- Copyright (C) 2022-2026 ESX Framework
+
+local GUI, MenuType, OpenedMenus, CurrentNameSpace = {}, "default", 0, nil
+GUI.Time = 0
+
+local function openMenu(namespace, name, data)
+    CurrentNameSpace = namespace
+    OpenedMenus = OpenedMenus + 1
+
+    data.namespace = namespace
+    data.name = name
+
+    xLib.nui.send({
+        action = "openMenu",
+        data = data
+    })
+end
+
+local function closeMenu(namespace, name)
+    CurrentNameSpace = namespace
+    OpenedMenus = OpenedMenus - 1
+    if OpenedMenus < 0 then
+        OpenedMenus = 0
+    end
+
+    xLib.nui.send({
+        action = "closeMenu",
+        data = {
+            namespace = namespace,
+            name = name,
+        }
+    })
+end
+
+AddEventHandler("onResourceStop", function(resource)
+    if GetCurrentResourceName() == resource and OpenedMenus > 0 then
+        ESX.UI.Menu.CloseAll()
+    elseif CurrentNameSpace ~= nil and CurrentNameSpace == resource and OpenedMenus > 0 then
+        ESX.UI.Menu.CloseAll()
+    end
+end)
+
+ESX.UI.Menu.RegisterType(MenuType, openMenu, closeMenu)
+
+xLib.nui.register("menu_submit", function(data, reply)
+    local menu = ESX.UI.Menu.GetOpened(MenuType, data._namespace, data._name)
+
+    if not menu then
+        reply("OK")
+        return xLib.nui.defer
+    end
+
+    if menu.submit ~= nil then
+        menu.submit(data, menu)
+    end
+
+    reply("OK")
+    return xLib.nui.defer
+end)
+
+xLib.nui.register("menu_cancel", function(data, reply)
+    local menu = ESX.UI.Menu.GetOpened(MenuType, data._namespace, data._name)
+
+    if not menu then
+        reply("OK")
+        return xLib.nui.defer
+    end
+
+    if menu.cancel ~= nil then
+        menu.cancel(data, menu)
+    end
+
+    reply("OK")
+    return xLib.nui.defer
+end)
+
+xLib.nui.register("menu_change", function(data, reply)
+    local menu = ESX.UI.Menu.GetOpened(MenuType, data._namespace, data._name)
+
+    if not menu then
+        reply("OK")
+        return xLib.nui.defer
+    end
+
+    for i = 1, #data.elements, 1 do
+        menu.setElement(i, "value", data.elements[i].value)
+
+        if data.elements[i].selected then
+            menu.setElement(i, "selected", true)
+        else
+            menu.setElement(i, "selected", false)
+        end
+    end
+
+    if menu.change ~= nil then
+        menu.change(data, menu)
+    end
+    reply("OK")
+    return xLib.nui.defer
+end)
+
+xLib.addKeybind({
+    name = "menu_default_enter",
+    description = "Submit menu item",
+    defaultMapper = "KEYBOARD",
+    defaultKey = "RETURN",
+    onPressed = function()
+    if OpenedMenus > 0 and (GetGameTimer() - GUI.Time) > 200 then
+        xLib.nui.send({
+            action = "controlPressed",
+            control = "ENTER",
+        })
+        GUI.Time = GetGameTimer()
+    end
+end,
+})
+
+xLib.addKeybind({
+    name = "menu_default_backspace",
+    description = "Close menu",
+    defaultMapper = "KEYBOARD",
+    defaultKey = "BACK",
+    onPressed = function()
+    if OpenedMenus > 0 then
+        xLib.nui.send({
+            action = "controlPressed",
+            control = "BACKSPACE",
+        })
+        GUI.Time = GetGameTimer()
+    end
+end,
+})
+
+xLib.addKeybind({
+    name = "menu_default_top",
+    description = "Change menu focus to top item",
+    defaultMapper = "KEYBOARD",
+    defaultKey = "UP",
+    onPressed = function()
+    if OpenedMenus > 0 then
+        xLib.nui.send({
+            action = "controlPressed",
+            control = "TOP",
+        })
+        GUI.Time = GetGameTimer()
+    end
+end,
+})
+
+xLib.addKeybind({
+    name = "menu_default_down",
+    description = "Change menu focus to down item",
+    defaultMapper = "KEYBOARD",
+    defaultKey = "DOWN",
+    onPressed = function()
+    if OpenedMenus > 0 then
+        xLib.nui.send({
+            action = "controlPressed",
+            control = "DOWN",
+        })
+        GUI.Time = GetGameTimer()
+    end
+end,
+})
+
+xLib.addKeybind({
+    name = "menu_default_left",
+    description = "Change menu slider to left",
+    defaultMapper = "KEYBOARD",
+    defaultKey = "LEFT",
+    onPressed = function()
+    if OpenedMenus > 0 then
+        xLib.nui.send({
+            action = "controlPressed",
+            control = "LEFT",
+        })
+        GUI.Time = GetGameTimer()
+    end
+end,
+})
+
+xLib.addKeybind({
+    name = "menu_default_right",
+    description = "Change menu slider to right",
+    defaultMapper = "KEYBOARD",
+    defaultKey = "RIGHT",
+    onPressed = function()
+    if OpenedMenus > 0 then
+        xLib.nui.send({
+            action = "controlPressed",
+            control = "RIGHT",
+        })
+        GUI.Time = GetGameTimer()
+    end
+end,
+})

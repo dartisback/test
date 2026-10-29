@@ -1,0 +1,6 @@
+# file creati dal server sul tuo PC (non vanno nel repository)
+artifacts/*
+!artifacts/LEGGIMI.txt
+server-data/cache/
+txData/
+backup/

@@ -1,0 +1,341 @@
+/*
+ * SPDX-License-Identifier: GPL-3.0-only
+ * Copyright (C) 2022-2026 ESX Framework
+ * Grafica C.E.D ITA: notifiche animate.
+ */
+
+:root {
+	--card-bg: rgba(12, 15, 24, 0.82);
+	--card-bg-2: rgba(22, 27, 42, 0.72);
+	--card-border: rgba(255, 255, 255, 0.08);
+	--text: #f4f6fb;
+	--text-dim: rgba(226, 232, 245, 0.72);
+	--width: 340px;
+	--radius: 14px;
+	--ita-green: #009246;
+	--ita-white: #f1f2f1;
+	--ita-red: #ce2b37;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+	background: transparent;
+	font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+	-webkit-font-smoothing: antialiased;
+}
+
+/* ---------- contenitori ---------- */
+
+.notification-container {
+	position: fixed;
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	width: var(--width);
+	max-height: 86vh;
+	z-index: 1000;
+	pointer-events: none;
+}
+
+#top-left { top: 2.2vh; left: 1.6vw; }
+#top-right { top: 2.2vh; right: 1.6vw; }
+#top-middle { top: 2.2vh; left: 50%; transform: translateX(-50%); }
+#middle-left { top: 50%; left: 1.6vw; transform: translateY(-50%); }
+#middle-right { top: 50%; right: 1.6vw; transform: translateY(-50%); }
+#bottom-left { bottom: 2.2vh; left: 1.6vw; flex-direction: column-reverse; }
+#bottom-right { bottom: 2.2vh; right: 1.6vw; flex-direction: column-reverse; }
+#bottom-middle { bottom: 2.2vh; left: 50%; transform: translateX(-50%); flex-direction: column-reverse; }
+
+/* lo slot si chiude dolcemente quando la notifica esce, cosi' le altre scorrono */
+.ced-slot {
+	overflow: visible;
+	max-height: 260px;
+	padding: 5px 0;
+	transition: max-height 380ms cubic-bezier(0.4, 0, 0.2, 1), padding 380ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ced-slot.closing {
+	max-height: 0 !important;
+	padding: 0;
+}
+
+/* ---------- card ---------- */
+
+.ced-notify {
+	--accent: #3d8bff;
+	--accent-2: #7cc0ff;
+	--accent-soft: rgba(61, 139, 255, 0.18);
+	--accent-shadow: rgba(61, 139, 255, 0.55);
+	--duration: 4000ms;
+
+	position: relative;
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 13px 15px 16px 14px;
+	border-radius: var(--radius);
+	background:
+		linear-gradient(135deg, var(--accent-soft) 0%, transparent 46%),
+		linear-gradient(180deg, var(--card-bg-2), var(--card-bg));
+	border: 1px solid var(--card-border);
+	box-shadow:
+		0 14px 34px rgba(0, 0, 0, 0.45),
+		0 0 0 1px rgba(0, 0, 0, 0.25),
+		inset 0 1px 0 rgba(255, 255, 255, 0.06);
+	backdrop-filter: blur(14px) saturate(140%);
+	-webkit-backdrop-filter: blur(14px) saturate(140%);
+	color: var(--text);
+	overflow: hidden;
+	will-change: transform, opacity, filter;
+}
+
+/* barra colorata a sinistra */
+.ced-notify::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 10px;
+	bottom: 10px;
+	width: 3px;
+	border-radius: 0 3px 3px 0;
+	background: linear-gradient(180deg, var(--accent-2), var(--accent));
+	box-shadow: 0 0 14px var(--accent);
+}
+
+/* riflesso che attraversa la card all'ingresso */
+.ced-notify::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: -60%;
+	width: 50%;
+	background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.10), transparent);
+	transform: skewX(-18deg);
+	animation: ced-shine 1100ms 180ms ease-out both;
+	pointer-events: none;
+}
+
+/* ---------- icona ---------- */
+
+.ced-icon {
+	position: relative;
+	flex: 0 0 38px;
+	height: 38px;
+	display: grid;
+	place-items: center;
+	border-radius: 11px;
+	background: linear-gradient(145deg, var(--accent-2), var(--accent));
+	box-shadow: 0 6px 16px var(--accent-shadow);
+	animation: ced-pop 520ms 120ms cubic-bezier(0.18, 1.6, 0.4, 1) both;
+}
+
+.ced-icon svg {
+	width: 21px;
+	height: 21px;
+	fill: none;
+	stroke: #fff;
+	stroke-width: 2.2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25));
+}
+
+.ced-icon svg .solid {
+	fill: #fff;
+	stroke: none;
+}
+
+.ced-icon .ring {
+	position: absolute;
+	inset: -1px;
+	border-radius: 12px;
+	border: 2px solid var(--accent-2);
+	animation: ced-ring 1600ms 250ms ease-out infinite;
+	opacity: 0;
+}
+
+/* ---------- testo ---------- */
+
+.ced-body {
+	flex: 1;
+	min-width: 0;
+	padding-top: 1px;
+}
+
+.ced-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 3px;
+}
+
+.ced-title {
+	font-family: "Rajdhani", "Inter", sans-serif;
+	font-weight: 700;
+	font-size: 15.5px;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--accent-2);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	animation: ced-rise 420ms 160ms cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+.ced-brand {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	font-family: "Rajdhani", "Inter", sans-serif;
+	font-weight: 600;
+	font-size: 10.5px;
+	letter-spacing: 0.14em;
+	color: rgba(255, 255, 255, 0.38);
+	animation: ced-rise 420ms 220ms cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+.ced-flag {
+	display: inline-flex;
+	width: 15px;
+	height: 9px;
+	border-radius: 2px;
+	overflow: hidden;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+.ced-flag i { flex: 1; }
+.ced-flag i:nth-child(1) { background: var(--ita-green); }
+.ced-flag i:nth-child(2) { background: var(--ita-white); }
+.ced-flag i:nth-child(3) { background: var(--ita-red); }
+
+.ced-msg {
+	font-size: 13.5px;
+	line-height: 1.42;
+	font-weight: 500;
+	color: var(--text-dim);
+	word-wrap: break-word;
+	animation: ced-rise 460ms 220ms cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+/* ---------- barra tempo ---------- */
+
+.ced-progress {
+	position: absolute;
+	left: 14px;
+	right: 14px;
+	bottom: 7px;
+	height: 3px;
+	border-radius: 3px;
+	background: rgba(255, 255, 255, 0.07);
+	overflow: hidden;
+}
+
+.ced-progress span {
+	display: block;
+	height: 100%;
+	border-radius: inherit;
+	background: linear-gradient(90deg, var(--accent), var(--accent-2));
+	box-shadow: 0 0 10px var(--accent);
+	transform-origin: left center;
+	animation: ced-timer var(--duration) linear forwards;
+}
+
+/* ---------- ingresso / uscita per lato ---------- */
+
+[data-side="right"] .ced-notify { animation: ced-in-right 620ms cubic-bezier(0.16, 1.18, 0.3, 1) both; }
+[data-side="left"] .ced-notify { animation: ced-in-left 620ms cubic-bezier(0.16, 1.18, 0.3, 1) both; }
+[data-side="top"] .ced-notify { animation: ced-in-top 620ms cubic-bezier(0.16, 1.18, 0.3, 1) both; }
+[data-side="bottom"] .ced-notify { animation: ced-in-bottom 620ms cubic-bezier(0.16, 1.18, 0.3, 1) both; }
+
+[data-side="right"] .closing .ced-notify { animation: ced-out-right 420ms cubic-bezier(0.6, 0, 0.8, 0.4) forwards; }
+[data-side="left"] .closing .ced-notify { animation: ced-out-left 420ms cubic-bezier(0.6, 0, 0.8, 0.4) forwards; }
+[data-side="top"] .closing .ced-notify,
+[data-side="bottom"] .closing .ced-notify { animation: ced-out-fade 380ms ease-in forwards; }
+
+@keyframes ced-in-right {
+	0% { opacity: 0; transform: translateX(115%) scale(0.92); filter: blur(6px); }
+	60% { opacity: 1; filter: blur(0); }
+	100% { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
+}
+
+@keyframes ced-in-left {
+	0% { opacity: 0; transform: translateX(-115%) scale(0.92); filter: blur(6px); }
+	60% { opacity: 1; filter: blur(0); }
+	100% { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
+}
+
+@keyframes ced-in-top {
+	0% { opacity: 0; transform: translateY(-40px) scale(0.9); filter: blur(6px); }
+	100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+@keyframes ced-in-bottom {
+	0% { opacity: 0; transform: translateY(40px) scale(0.9); filter: blur(6px); }
+	100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+@keyframes ced-out-right {
+	0% { opacity: 1; transform: translateX(0) scale(1); }
+	100% { opacity: 0; transform: translateX(110%) scale(0.94); filter: blur(4px); }
+}
+
+@keyframes ced-out-left {
+	0% { opacity: 1; transform: translateX(0) scale(1); }
+	100% { opacity: 0; transform: translateX(-110%) scale(0.94); filter: blur(4px); }
+}
+
+@keyframes ced-out-fade {
+	0% { opacity: 1; transform: scale(1); }
+	100% { opacity: 0; transform: scale(0.9); filter: blur(4px); }
+}
+
+@keyframes ced-pop {
+	0% { transform: scale(0.3) rotate(-25deg); opacity: 0; }
+	100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+@keyframes ced-ring {
+	0% { transform: scale(1); opacity: 0.75; }
+	100% { transform: scale(1.55); opacity: 0; }
+}
+
+@keyframes ced-rise {
+	0% { transform: translateY(6px); opacity: 0; }
+	100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes ced-shine {
+	0% { left: -60%; }
+	100% { left: 130%; }
+}
+
+@keyframes ced-timer {
+	from { transform: scaleX(1); }
+	to { transform: scaleX(0); }
+}
+
+/* card speciali Forze dell'Ordine: lampeggiante blu/rosso sul bordo */
+.ced-notify[data-type="polizia"] .ced-progress span,
+.ced-notify[data-type="carabinieri"] .ced-progress span {
+	background: linear-gradient(90deg, #1d4ed8, #60a5fa, #ef4444, #1d4ed8);
+	background-size: 300% 100%;
+	animation:
+		ced-timer var(--duration) linear forwards,
+		ced-siren 900ms linear infinite;
+}
+
+@keyframes ced-siren {
+	from { background-position: 0% 0; }
+	to { background-position: 300% 0; }
+}
