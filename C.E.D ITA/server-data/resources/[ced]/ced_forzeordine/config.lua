@@ -52,6 +52,22 @@ Config.Dipartimenti = {
     },
 }
 
+-- Lavori che devono SEMPRE esistere nel database: se mancano vengono ricreati all'avvio
+Config.LavoriDatabase = {
+    {
+        name = 'unemployed', label = 'Disoccupato', type = 'civ',
+        gradi = { { grado = 0, nome = 'unemployed', label = 'Disoccupato', stipendio = 200 } },
+    },
+    {
+        name = 'polizia', label = 'Polizia Di Stato', type = 'leo',
+        gradi = { { grado = 0, nome = 'operatore', label = 'Operatore', stipendio = 800 } },
+    },
+    {
+        name = 'carabinieri', label = 'Arma Dei Carabinieri', type = 'leo',
+        gradi = { { grado = 0, nome = 'operatore', label = 'Operatore', stipendio = 800 } },
+    },
+}
+
 Config.Testi = {
     in_servizio = 'Sei ora ~g~in servizio~s~ come %s.',
     fuori_servizio = 'Sei ora ~r~fuori servizio~s~.',

@@ -12,12 +12,24 @@ echo.
 echo   ==============================================
 echo      C.E.D ITA - Avvio server
 echo   ==============================================
+
+rem crea/controlla il database con il nome scritto in server.cfg (tabelle + job)
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0strumenti\prepara_database.ps1"
+if errorlevel 1 goto dberror
+
+:start
 echo.
 "%~dp0artifacts\FXServer.exe" +exec server.cfg
 echo.
 echo   Il server si e' chiuso.
 pause
 exit /b 0
+
+:dberror
+echo   Il database non e' pronto: leggi il messaggio qui sopra.
+echo   Premi un tasto per avviare comunque il server, oppure chiudi questa finestra.
+pause >nul
+goto start
 
 :noartifacts
 echo.

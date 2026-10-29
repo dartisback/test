@@ -107,7 +107,7 @@ try {
 
     Write-Host ''
     Write-Host '  Fatto! Prossimi passi:' -ForegroundColor White
-    Write-Host '   1) Importa database\ced_ita.sql in MySQL/MariaDB'
+    Write-Host '   1) Avvia MySQL (es. XAMPP): il database si crea da solo all''avvio'
     Write-Host '   2) Metti gli artifacts nella cartella "artifacts"'
     Write-Host '   3) Inserisci la key in server-data\server.cfg (sv_licenseKey)'
     Write-Host '   4) Avvia con AVVIA_SERVER.bat'

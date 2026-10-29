@@ -15,9 +15,10 @@ Job: **Polizia Di Stato – Operatore** e **Arma Dei Carabinieri – Operatore**
 C.E.D ITA/
 ├── AVVIA_SERVER.bat          ← avvia il server
 ├── AVVIA_TXADMIN.bat         ← (facoltativo) avvia con il pannello txAdmin
+├── CREA_DATABASE.bat         ← crea il database (lo fa già AVVIA_SERVER.bat)
 ├── INSTALLA_RISORSE.bat      ← aggiorna ox_* (-Aggiorna) e riapplica il tema
 ├── artifacts/                ← QUI metti gli artifacts (FXServer.exe)
-├── database/ced_ita.sql      ← database da importare una volta
+├── database/ced_ita.sql      ← tabelle + job (usato in automatico)
 ├── anteprime/                ← immagini della grafica
 ├── strumenti/                ← script di installazione + tema ox_inventory
 └── server-data/
@@ -35,14 +36,30 @@ C.E.D ITA/
 
 ## Installazione (passo passo)
 
-### 1. Database
-1. Installa **XAMPP** (avvia il modulo *MySQL*) oppure **MariaDB** + **HeidiSQL**.
-2. Apri HeidiSQL (o phpMyAdmin) e importa `database/ced_ita.sql`.
-   Crea da solo il database `ced_ita` con tutte le tabelle e i job.
-3. Se il tuo MySQL ha una password, modificala in `server-data/server.cfg`:
+### 1. Database (si crea da solo)
+1. Installa **XAMPP** (https://www.apachefriends.org) e nel pannello premi **Start** su **MySQL**.
+   Va bene anche MariaDB o MySQL installati a parte.
+2. Fine: quando lanci `AVVIA_SERVER.bat` il database viene **creato in automatico** con il nome
+   scritto in `server-data/server.cfg` (di default `ced_ita`), con tutte le tabelle e i lavori:
+
+   | Lavoro | Grado |
+   |---|---|
+   | Disoccupato | Disoccupato |
+   | Polizia Di Stato | Operatore |
+   | Arma Dei Carabinieri | Operatore |
+
+   Puoi farlo anche a parte con `CREA_DATABASE.bat`. Rilanciarlo non crea doppioni e non cancella nulla.
+3. Se il tuo MySQL ha una password, scrivila in `server-data/server.cfg`:
    ```
    set mysql_connection_string "mysql://root:LATUAPASSWORD@localhost/ced_ita?charset=utf8mb4"
    ```
+4. Se `mysql.exe` non viene trovato (installazione in una cartella strana), indicalo tu:
+   ```
+   CREA_DATABASE.bat -MySql "C:\percorso\mysql.exe"
+   ```
+
+In più la risorsa `ced_forzeordine` a ogni avvio controlla che i tre lavori esistano e, se qualcuno
+li ha cancellati, li ricrea da sola.
 
 ### 2. Artifacts
 Scarica gli artifacts Windows (*Recommended*) da
@@ -123,7 +140,8 @@ ESX.ShowNotification("Pattuglia", "carabinieri", 5000, "Centrale Operativa")
 ## Problemi comuni
 
 - **"Couldn't find resource fivepd"** → non hai ancora messo FivePD (passo 4).
-- **Errore di connessione a MySQL** → MySQL non è avviato in XAMPP, oppure la password nella `mysql_connection_string` è sbagliata.
+- **"Impossibile collegarsi a MySQL"** → MySQL non è avviato in XAMPP, oppure la password nella `mysql_connection_string` è sbagliata.
+- **"Non trovo mysql.exe"** → installa XAMPP oppure usa `CREA_DATABASE.bat -MySql "C:\percorso\mysql.exe"`.
 - **"ESX Requires a minimum Artifact version"** → scarica artifacts più recenti.
 - **Server che non parte da una cartella con spazi** → se capita, sposta la cartella in un percorso semplice, es. `C:\CED_ITA\`.
 

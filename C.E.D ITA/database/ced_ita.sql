@@ -2,8 +2,9 @@
 --  C.E.D ITA - DATABASE COMPLETO
 --  ESX Legacy (core + identity + multicharacter + skin) + job FdO
 --
---  Importalo UNA VOLTA SOLA con HeidiSQL / phpMyAdmin:
---  crea da solo il database `ced_ita`.
+--  NON serve importarlo a mano: AVVIA_SERVER.bat (o CREA_DATABASE.bat)
+--  lo esegue da solo usando il nome del database scritto in server.cfg.
+--  Se vuoi importarlo a mano (HeidiSQL / phpMyAdmin) crea il database `ced_ita`.
 --  Tabelle ESX tratte da esx-framework/esx_core (GPL-3.0).
 -- =====================================================================
 
@@ -115,15 +116,39 @@ CREATE TABLE IF NOT EXISTS `job_grades` (
     UNIQUE KEY `job_grade_unique` (`job_name`, `grade`)
 ) ENGINE=InnoDB;
 
-INSERT IGNORE INTO `jobs` (`name`, `label`, `type`) VALUES
-    ('unemployed',  'Disoccupato',          'civ'),
-    ('polizia',     'Polizia Di Stato',     'leo'),
-    ('carabinieri', 'Arma Dei Carabinieri', 'leo');
+-- Si puo' rieseguire quante volte vuoi: non crea doppioni.
 
-INSERT IGNORE INTO `job_grades` (`job_name`, `grade`, `name`, `label`, `salary`, `skin_male`, `skin_female`) VALUES
-    ('unemployed',  0, 'unemployed', 'Disoccupato', 200, '{}', '{}'),
-    ('polizia',     0, 'operatore',  'Operatore',   800, '{}', '{}'),
-    ('carabinieri', 0, 'operatore',  'Operatore',   800, '{}', '{}');
+-- database creati con gli SQL ufficiali ESX non hanno ancora la colonna `type`
+SET @ced_col := (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'jobs' AND COLUMN_NAME = 'type');
+SET @ced_sql := IF(@ced_col = 0,
+    'ALTER TABLE `jobs` ADD COLUMN `type` VARCHAR(50) NOT NULL DEFAULT ''civ'' AFTER `label`',
+    'DO 0');
+PREPARE ced_stmt FROM @ced_sql;
+EXECUTE ced_stmt;
+DEALLOCATE PREPARE ced_stmt;
+
+INSERT IGNORE INTO `jobs` (`name`, `label`) VALUES
+    ('unemployed',  'Disoccupato'),
+    ('polizia',     'Polizia Di Stato'),
+    ('carabinieri', 'Arma Dei Carabinieri');
+
+UPDATE `jobs` SET `label` = 'Disoccupato' WHERE `name` = 'unemployed';
+UPDATE `jobs` SET `type` = 'leo' WHERE `name` IN ('polizia', 'carabinieri');
+
+INSERT INTO `job_grades` (`job_name`, `grade`, `name`, `label`, `salary`, `skin_male`, `skin_female`)
+    SELECT 'unemployed', 0, 'unemployed', 'Disoccupato', 200, '{}', '{}' FROM DUAL
+    WHERE NOT EXISTS (SELECT 1 FROM `job_grades` WHERE `job_name` = 'unemployed' AND `grade` = 0);
+
+INSERT INTO `job_grades` (`job_name`, `grade`, `name`, `label`, `salary`, `skin_male`, `skin_female`)
+    SELECT 'polizia', 0, 'operatore', 'Operatore', 800, '{}', '{}' FROM DUAL
+    WHERE NOT EXISTS (SELECT 1 FROM `job_grades` WHERE `job_name` = 'polizia' AND `grade` = 0);
+
+INSERT INTO `job_grades` (`job_name`, `grade`, `name`, `label`, `salary`, `skin_male`, `skin_female`)
+    SELECT 'carabinieri', 0, 'operatore', 'Operatore', 800, '{}', '{}' FROM DUAL
+    WHERE NOT EXISTS (SELECT 1 FROM `job_grades` WHERE `job_name` = 'carabinieri' AND `grade` = 0);
+
+UPDATE `job_grades` SET `label` = 'Disoccupato' WHERE `job_name` = 'unemployed' AND `grade` = 0;
 
 -- ---------------------------------------------------------------------
 --  Vuoi aggiungere altri gradi? Esempio (togli i -- per attivarlo):

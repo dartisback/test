@@ -12,9 +12,15 @@ shared_scripts {
     'config.lua',
 }
 
-server_script 'server.lua'
+server_scripts {
+    '@oxmysql/lib/MySQL.lua',
+    'database.lua',
+    'server.lua',
+}
+
 client_script 'client.lua'
 
 dependencies {
+    'oxmysql',
     'es_extended',
 }
