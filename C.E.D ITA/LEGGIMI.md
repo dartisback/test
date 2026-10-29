@@ -16,6 +16,7 @@ C.E.D ITA/
 ├── AVVIA_SERVER.bat          ← avvia il server
 ├── AVVIA_TXADMIN.bat         ← (facoltativo) avvia con il pannello txAdmin
 ├── CREA_DATABASE.bat         ← crea il database (lo fa già AVVIA_SERVER.bat)
+├── AVVIA_XAMPP.bat           ← apre XAMPP controllando/riparando MySQL da solo
 ├── RIPARA_MYSQL_XAMPP.bat    ← ripara "MySQL shutdown unexpectedly" senza perdere i dati
 ├── INSTALLA_RISORSE.bat      ← aggiorna ox_* (-Aggiorna) e riapplica il tema
 ├── artifacts/                ← QUI metti gli artifacts (FXServer.exe)
@@ -141,9 +142,13 @@ ESX.ShowNotification("Pattuglia", "carabinieri", 5000, "Centrale Operativa")
 ## Problemi comuni
 
 - **"Couldn't find resource fivepd"** → non hai ancora messo FivePD (passo 4).
-- **XAMPP: "Error: MySQL shutdown unexpectedly"** → chiudi il pannello XAMPP e lancia `RIPARA_MYSQL_XAMPP.bat`.
-  Ricrea i file di sistema di MySQL dalla copia pulita di XAMPP e ci rimette dentro i tuoi database
-  (la cartella vecchia resta in `xampp\mysql\data_old_...`). Per evitarlo: premi sempre **Stop** su MySQL prima di spegnere il PC.
+- **XAMPP: "Error: MySQL shutdown unexpectedly"** → apri XAMPP con `AVVIA_XAMPP.bat` (o con il collegamento
+  "XAMPP (auto-riparazione)" sul Desktop): controlla MySQL e, se crasha, lo ripara da solo prima di aprire il pannello.
+  - *Livello 1*: ricrea i file di sistema di MySQL e tiene i tuoi database.
+  - *Livello 2*: se i database stessi sono rovinati, li salva in `.sql` (modalità recupero), rimette MySQL
+    **come appena scaricato** e li reimporta: come reinstallare XAMPP, ma senza perdere i dati.
+  - I file originali restano sempre in `xampp\mysql\data_old_...`.
+  - Per evitarlo: installa MySQL come servizio (lo script te lo propone) o premi **Stop** prima di spegnere il PC.
 - **"Impossibile collegarsi a MySQL"** → MySQL non è avviato in XAMPP, oppure la password nella `mysql_connection_string` è sbagliata.
 - **"Non trovo mysql.exe"** → installa XAMPP oppure usa `CREA_DATABASE.bat -MySql "C:\percorso\mysql.exe"`.
 - **"ESX Requires a minimum Artifact version"** → scarica artifacts più recenti.
