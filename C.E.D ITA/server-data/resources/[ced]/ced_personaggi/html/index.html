@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" />
+  <link rel="stylesheet" href="style.css" />
+  <title>C.E.D ITA - Personaggi</title>
+</head>
+<body>
+  <div id="app" class="nascosto">
+
+    <!-- ===================== intestazione ===================== -->
+    <header class="marchio">
+      <div class="bandiera"><i></i><i></i><i></i></div>
+      <div>
+        <h1>C.E.D <span>ITA</span></h1>
+        <p id="sottotitolo">Seleziona il tuo cittadino</p>
+      </div>
+    </header>
+
+    <!-- ===================== selezione ===================== -->
+    <section id="schermata-selezione" class="schermata attiva">
+      <aside class="colonna sinistra">
+        <div class="titolo-colonna">
+          <span>I tuoi cittadini</span>
+          <b id="conteggio">0 / 3</b>
+        </div>
+        <div id="lista-personaggi" class="lista"></div>
+      </aside>
+
+      <aside class="colonna destra">
+        <div id="scheda" class="scheda pannello"></div>
+      </aside>
+    </section>
+
+    <!-- ===================== anagrafe (identity) ===================== -->
+    <section id="schermata-anagrafe" class="schermata">
+      <form id="modulo" class="pannello modulo" autocomplete="off" novalidate>
+        <div class="intestazione-modulo">
+          <span class="etichetta">Ufficio Anagrafe</span>
+          <h2>Registrazione nuovo cittadino</h2>
+          <p>Compila i tuoi dati: compariranno sulla carta d'identit&agrave;.</p>
+        </div>
+
+        <div class="riga">
+          <label class="campo">
+            <span>Nome</span>
+            <input id="campo-nome" name="nome" maxlength="16" placeholder="Mario" />
+          </label>
+          <label class="campo">
+            <span>Cognome</span>
+            <input id="campo-cognome" name="cognome" maxlength="16" placeholder="Rossi" />
+          </label>
+        </div>
+
+        <div class="campo">
+          <span>Data di nascita</span>
+          <div class="data">
+            <input id="campo-giorno" inputmode="numeric" maxlength="2" placeholder="gg" />
+            <b>/</b>
+            <input id="campo-mese" inputmode="numeric" maxlength="2" placeholder="mm" />
+            <b>/</b>
+            <input id="campo-anno" inputmode="numeric" maxlength="4" placeholder="aaaa" class="anno" />
+          </div>
+        </div>
+
+        <div class="campo">
+          <span>Sesso</span>
+          <div class="sesso">
+            <button type="button" data-sesso="m" class="scelta attiva">
+              <svg viewBox="0 0 24 24"><circle cx="10" cy="14" r="5.5"/><path d="M14 10l6-6M15 4h5v5"/></svg>Maschio
+            </button>
+            <button type="button" data-sesso="f" class="scelta">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.5"/><path d="M12 14.5V22M8.5 18.5h7"/></svg>Femmina
+            </button>
+          </div>
+        </div>
+
+        <label class="campo">
+          <span>Statura <b id="valore-altezza">175 cm</b></span>
+          <input id="campo-altezza" type="range" min="140" max="210" value="175" />
+        </label>
+
+        <p id="errore" class="errore"></p>
+
+        <div class="azioni">
+          <button type="button" id="annulla" class="bottone secondario">Annulla</button>
+          <button type="submit" class="bottone primario">Conferma registrazione</button>
+        </div>
+      </form>
+
+      <!-- carta d'identita' in anteprima -->
+      <div class="carta-contenitore">
+        <div id="carta" class="carta">
+          <div class="carta-testa">
+            <div>
+              <b>CARTA D'IDENTIT&Agrave;</b>
+              <span>C.E.D ITA &middot; COMUNE DI <em id="carta-comune">LOS SANTOS</em></span>
+            </div>
+            <div class="bandiera piccola"><i></i><i></i><i></i></div>
+          </div>
+          <div class="carta-corpo">
+            <div class="foto">
+              <svg viewBox="0 0 64 80"><circle cx="32" cy="28" r="14"/><path d="M6 80c2-18 13-27 26-27s24 9 26 27z"/></svg>
+            </div>
+            <dl>
+              <div><dt>Cognome</dt><dd id="carta-cognome">&mdash;</dd></div>
+              <div><dt>Nome</dt><dd id="carta-nome">&mdash;</dd></div>
+              <div><dt>Nato il</dt><dd id="carta-nascita">&mdash;</dd></div>
+              <div class="mezza"><dt>Sesso</dt><dd id="carta-sesso">M</dd></div>
+              <div class="mezza"><dt>Statura</dt><dd id="carta-altezza">175</dd></div>
+              <div><dt>Cittadinanza</dt><dd id="carta-cittadinanza">ITALIANA</dd></div>
+            </dl>
+          </div>
+          <div class="carta-piede">
+            <span id="carta-numero">CA00000AA</span>
+            <span class="firma">Firma del titolare</span>
+          </div>
+          <div class="riflesso"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== conferma eliminazione ===================== -->
+    <div id="finestra-elimina" class="finestra">
+      <div class="pannello finestra-contenuto">
+        <h3>Eliminare il cittadino?</h3>
+        <p>Stai per eliminare <b id="elimina-nome"></b>. Soldi, oggetti, veicoli e lavoro andranno persi per sempre.</p>
+        <div class="azioni">
+          <button type="button" id="elimina-annulla" class="bottone secondario">Annulla</button>
+          <button type="button" id="elimina-conferma" class="bottone pericolo">Elimina definitivamente</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== caricamento ===================== -->
+    <div id="caricamento" class="caricamento">
+      <div class="anello"></div>
+      <p id="testo-caricamento">Ingresso in citt&agrave;...</p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

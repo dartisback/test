@@ -94,6 +94,43 @@ CREATE TABLE IF NOT EXISTS `ox_inventory` (
 ) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------------------
+--  ILLENIUM-APPEARANCE (vestiti salvati, codici outfit, divise dei lavori)
+--  L'aspetto del personaggio e' nella colonna users.skin
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `player_outfits` (
+    `id`         INT(11)       NOT NULL AUTO_INCREMENT,
+    `citizenid`  VARCHAR(50)   DEFAULT NULL,
+    `outfitname` VARCHAR(50)   NOT NULL DEFAULT '0',
+    `model`      VARCHAR(50)   DEFAULT NULL,
+    `props`      VARCHAR(1000) DEFAULT NULL,
+    `components` VARCHAR(1500) DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `citizenid_outfitname_model` (`citizenid`, `outfitname`, `model`),
+    KEY `citizenid` (`citizenid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `player_outfit_codes` (
+    `id`       INT(11)     NOT NULL AUTO_INCREMENT,
+    `outfitid` INT(11)     NOT NULL,
+    `code`     VARCHAR(50) NOT NULL DEFAULT '',
+    PRIMARY KEY (`id`),
+    KEY `FK_player_outfit_codes_player_outfits` (`outfitid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `management_outfits` (
+    `id`         INT(11)       NOT NULL AUTO_INCREMENT,
+    `job_name`   VARCHAR(50)   NOT NULL,
+    `type`       VARCHAR(50)   NOT NULL,
+    `minrank`    INT(11)       NOT NULL DEFAULT 0,
+    `name`       VARCHAR(50)   NOT NULL DEFAULT 'Cool Outfit',
+    `gender`     VARCHAR(50)   NOT NULL DEFAULT 'male',
+    `model`      VARCHAR(50)   DEFAULT NULL,
+    `props`      VARCHAR(1000) DEFAULT NULL,
+    `components` VARCHAR(1500) DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ---------------------------------------------------------------------
 --  LAVORI
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `jobs` (

@@ -1,11 +1,17 @@
 # C.E.D ITA – Server FiveM
 
 ESX Legacy + ox_inventory con grafica nuova + notifiche animate + FivePD
+Selezione personaggi e carta d'identità italiana fatte da zero + illenium-appearance con tema C.E.D ITA
 Job: **Polizia Di Stato – Operatore** e **Arma Dei Carabinieri – Operatore**
+Si aggiorna da solo a ogni avvio (tiene key, database e le tue modifiche).
 
-| Inventario (ox_inventory con tema C.E.D ITA) | Notifiche animate |
+| Selezione personaggi | Ufficio Anagrafe (identity) |
 |---|---|
-| ![inventario](anteprime/inventario.png) | ![notifiche](anteprime/notifiche.png) |
+| ![personaggi](anteprime/personaggi.png) | ![anagrafe](anteprime/anagrafe.png) |
+
+| Aspetto (illenium-appearance) | Inventario (ox_inventory) | Notifiche animate |
+|---|---|---|
+| ![aspetto](anteprime/aspetto.png) | ![inventario](anteprime/inventario.png) | ![notifiche](anteprime/notifiche.png) |
 
 ---
 
@@ -13,7 +19,8 @@ Job: **Polizia Di Stato – Operatore** e **Arma Dei Carabinieri – Operatore**
 
 ```
 C.E.D ITA/
-├── AVVIA_SERVER.bat          ← avvia il server
+├── AVVIA_SERVER.bat          ← aggiorna (da GitHub) e avvia il server
+├── AGGIORNA.bat              ← solo aggiornamento, senza avviare
 ├── AVVIA_TXADMIN.bat         ← (facoltativo) avvia con il pannello txAdmin
 ├── CREA_DATABASE.bat         ← crea il database (lo fa già AVVIA_SERVER.bat)
 ├── AVVIA_XAMPP.bat           ← apre XAMPP controllando/riparando MySQL da solo
@@ -22,7 +29,7 @@ C.E.D ITA/
 ├── artifacts/                ← QUI metti gli artifacts (FXServer.exe)
 ├── database/ced_ita.sql      ← tabelle + job (usato in automatico)
 ├── anteprime/                ← immagini della grafica
-├── strumenti/                ← script di installazione + tema ox_inventory
+├── strumenti/                ← script (avvio, aggiornamento, database, XAMPP, temi)
 └── server-data/
     ├── server.cfg            ← configurazione (qui va la key)
     ├── permessi.cfg          ← admin e permessi
@@ -30,9 +37,31 @@ C.E.D ITA/
         ├── [cfx]/            spawnmanager
         ├── [ox]/             oxmysql, ox_lib, cfxlua-require, ox_inventory (già con tema)
         ├── [esx]/            ESX Legacy 1.16 (esx_notify con le notifiche nuove)
-        ├── [ced]/            ced_forzeordine (Polizia / Carabinieri / ponte FivePD)
+        ├── [aspetto]/        illenium-appearance (tema C.E.D ITA, in italiano)
+        ├── [ced]/            ced_personaggi (selezione personaggi + anagrafe)
+        │                     ced_forzeordine (Polizia / Carabinieri / ponte FivePD)
         └── [fivepd]/         QUI metti FivePD
 ```
+
+---
+
+## Aggiornamenti automatici
+
+Ogni volta che lanci `AVVIA_SERVER.bat`, prima di accendere il server:
+
+1. controlla su GitHub se c'è una versione nuova (se non c'è internet parte e basta);
+2. aggiorna **solo i file che non hai modificato tu**;
+3. `server.cfg` e `permessi.cfg` vengono uniti: restano **la tua key, il database, il nome del server**
+   e tutte le righe che hai aggiunto tu (in fondo, sotto "RIGHE AGGIUNTE DA TE");
+4. se hai modificato un altro file, tiene il **tuo** e mette quello nuovo in `backup\aggiornamento_<data>\nuove_versioni`;
+5. non tocca mai `artifacts`, `backup`, la cache e le risorse che hai aggiunto tu.
+
+Puoi anche aggiornare senza avviare con `AGGIORNA.bat`.
+Per disattivare gli aggiornamenti crea un file vuoto `NON_AGGIORNARE.txt` nella cartella principale.
+
+> **Se arrivi da una versione senza aggiornamenti automatici** (passo da fare una volta sola):
+> scarica lo ZIP, copia nella tua cartella `AVVIA_SERVER.bat`, `AGGIORNA.bat` e la cartella `strumenti`
+> (sovrascrivi), poi avvia `AVVIA_SERVER.bat`: il resto si aggiorna da solo.
 
 ---
 
@@ -107,6 +136,11 @@ Per rendere l'admin permanente puoi anche aggiungere il tuo identificativo in `s
 | Comando | Cosa fa |
 |---|---|
 | `/servizio` | Entra/esce dal servizio (solo Polizia e Carabinieri) |
+| `/cambiapersonaggio` | Torna alla selezione personaggi senza uscire dal server |
+| `/reloadskin` | Ricarica il tuo aspetto (se il personaggio si vede male) |
+| `/setslot [id] [numero]` | (admin) Quanti personaggi può avere un giocatore |
+| `/pedmenu` | (admin) Apre il menu aspetto completo |
+| `/migrateskins` | (admin, console) Converte gli aspetti salvati col vecchio esx_skin |
 | `/colleghi` | Mostra quanti agenti sono in servizio |
 | `/testnotifiche` | Mostra tutti i tipi di notifica (disattivalo in `esx_notify/Config.lua`) |
 | **F2** / **TAB** | Inventario / barra rapida |
@@ -122,6 +156,10 @@ Punti di servizio con marker (tasto **E**):
 | Cosa | Dove |
 |---|---|
 | Nome server, slot, porta | `server-data/server.cfg` |
+| Personaggi per giocatore, punto di spawn, regole carta d'identità | `resources/[ced]/ced_personaggi/config.lua` |
+| Grafica selezione personaggi / anagrafe | `resources/[ced]/ced_personaggi/html/style.css` |
+| Colori menu aspetto | `resources/[aspetto]/illenium-appearance/shared/theme.lua` (tema `ced-ita`) |
+| Negozi di vestiti, barbieri, prezzi | `resources/[aspetto]/illenium-appearance/shared/config.lua` |
 | Posizione e suono notifiche | `resources/[esx]/esx_notify/Config.lua` |
 | Colori/stile notifiche | `resources/[esx]/esx_notify/nui/css/style.css` |
 | Colori inventario | `strumenti/tema_ox_inventory/ced-theme.css` → poi lancia `INSTALLA_RISORSE.bat` |
@@ -136,6 +174,19 @@ ESX.ShowNotification("Messaggio", "success")          -- success, error, info, w
 ESX.ShowNotification("Sei in servizio", "polizia")    -- stile Polizia Di Stato
 ESX.ShowNotification("Pattuglia", "carabinieri", 5000, "Centrale Operativa")
 ```
+
+---
+
+## Personaggi e aspetto
+
+- All'ingresso si apre la **selezione personaggi** C.E.D ITA: scegli un cittadino e premi *Entra in città*.
+- Uno spazio libero apre l'**Ufficio Anagrafe**: nome, cognome, data di nascita (gg/mm/aaaa),
+  sesso e statura; la carta d'identità si compila mentre scrivi. Poi si apre **illenium-appearance**
+  per creare l'aspetto (viso, capelli, vestiti, tatuaggi).
+- I personaggi creati prima di questo aggiornamento restano (nome, soldi, lavoro, oggetti):
+  al primo ingresso ti verrà chiesto di rifare l'aspetto, perché il vecchio esx_skin salvava in un
+  formato diverso. In alternativa un admin può convertirli dalla console con `migrateskins`.
+- In città trovi negozi di vestiti, barbieri e tatuatori con le icone sulla mappa (illenium-appearance).
 
 ---
 
@@ -161,5 +212,6 @@ ESX.ShowNotification("Pattuglia", "carabinieri", 5000, "Centrale Operativa")
 - [ESX Legacy](https://github.com/esx-framework/esx_core) – GPL-3.0
 - [oxmysql](https://github.com/overextended/oxmysql), [ox_lib](https://github.com/overextended/ox_lib), [ox_inventory](https://github.com/overextended/ox_inventory) – LGPL-3.0 / GPL-3.0, [cfxlua-require](https://github.com/overextended/cfxlua-require) – MPL-2.0
 - spawnmanager – [cfx-server-data](https://github.com/citizenfx/cfx-server-data)
+- [illenium-appearance](https://github.com/iLLeniumStudios/illenium-appearance) – MIT
 - FivePD – da scaricare dal sito ufficiale (non incluso)
-- Notifiche, tema inventario e `ced_forzeordine`: C.E.D ITA
+- Notifiche, tema inventario, `ced_personaggi` e `ced_forzeordine`: C.E.D ITA

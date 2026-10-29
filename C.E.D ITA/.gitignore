@@ -4,3 +4,7 @@ artifacts/*
 server-data/cache/
 txData/
 backup/
+strumenti/.versione_installata
+strumenti/.no_collegamento_xampp
+NON_AGGIORNARE.txt
+AVVIA_SERVER.bat.nuovo
