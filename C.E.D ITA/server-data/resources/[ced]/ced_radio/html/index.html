@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&family=Share+Tech+Mono&display=swap" />
+  <link rel="stylesheet" href="style.css" />
+  <title>C.E.D ITA - Radio</title>
+</head>
+<body>
+  <!-- indicatore piccolo quando la radio e' accesa ma chiusa -->
+  <div id="mini" class="mini nascosto">
+    <span class="punto"></span>
+    <b id="mini-frequenza">---.-</b>
+    <span id="mini-nome"></span>
+  </div>
+
+  <div id="radio" class="contenitore nascosto">
+    <!-- pannello canali -->
+    <aside class="pannello">
+      <div class="pannello-testa">
+        <div class="bandiera"><i></i><i></i><i></i></div>
+        <div>
+          <b>Rete Radio Interforze</b>
+          <span>C.E.D ITA</span>
+        </div>
+      </div>
+
+      <h3>Canali disponibili</h3>
+      <div id="lista-canali" class="lista-canali"></div>
+
+      <h3>In ascolto <span id="conteggio-membri"></span></h3>
+      <div id="lista-membri" class="lista-membri"></div>
+
+      <p class="aiuto">Tieni premuto <kbd>ALT SINISTRO</kbd> per parlare.<br />Frequenze libere: <span id="aiuto-libere"></span></p>
+    </aside>
+
+    <!-- la radio -->
+    <div class="apparecchio">
+      <div class="antenna"></div>
+      <div class="manopola"></div>
+      <div class="corpo">
+        <div class="griglia-altoparlante"></div>
+
+        <div id="display" class="display spento">
+          <div class="display-riga">
+            <span class="segnale"><i></i><i></i><i></i><i></i></span>
+            <span id="tx" class="tx">TX</span>
+            <span class="batteria"><i></i></span>
+          </div>
+          <div class="frequenza"><b id="frequenza">---.-</b><small>MHz</small></div>
+          <div class="nome-canale"><span id="sigla" class="sigla"></span><span id="nome-canale">Radio spenta</span></div>
+          <div class="volume-barra"><span>VOL</span><div><i id="volume-livello"></i></div></div>
+        </div>
+
+        <div class="tasti-funzione">
+          <button data-azione="giu" title="Canale precedente">&#9660;</button>
+          <button data-azione="accendi" class="accensione" title="Accendi / spegni">&#9211;</button>
+          <button data-azione="su" title="Canale successivo">&#9650;</button>
+          <button data-azione="vol-" title="Volume -">VOL&minus;</button>
+          <button data-azione="chiudi" class="chiudi" title="Chiudi (ESC)">&#10005;</button>
+          <button data-azione="vol+" title="Volume +">VOL+</button>
+        </div>
+
+        <div class="tastierino">
+          <button data-cifra="1">1</button><button data-cifra="2">2</button><button data-cifra="3">3</button>
+          <button data-cifra="4">4</button><button data-cifra="5">5</button><button data-cifra="6">6</button>
+          <button data-cifra="7">7</button><button data-cifra="8">8</button><button data-cifra="9">9</button>
+          <button data-azione="cancella" class="secondario">C</button><button data-cifra="0">0</button><button data-azione="invio" class="invio">OK</button>
+        </div>
+
+        <div class="marchio">C.E.D ITA &middot; RADIO</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

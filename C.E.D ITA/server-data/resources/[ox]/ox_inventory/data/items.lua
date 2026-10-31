@@ -191,7 +191,11 @@ return {
 		label = 'Radio',
 		weight = 1000,
 		stack = false,
-		allowArmed = true
+		allowArmed = true,
+		description = 'Radio portatile: canali interforze e frequenze libere',
+		client = {
+			export = 'ced_radio.usaRadio'   -- C.E.D ITA: apre la radio (non viene consumata)
+		}
 	},
 
 	['armour'] = {

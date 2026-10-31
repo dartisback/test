@@ -5,6 +5,10 @@ Selezione personaggi e carta d'identità italiana fatte da zero + illenium-appea
 Job: **Polizia Di Stato – Operatore** e **Arma Dei Carabinieri – Operatore**
 Si aggiorna da solo a ogni avvio (tiene key, database e le tue modifiche).
 
+| Radio interforze | |
+|---|---|
+| ![radio](anteprime/radio.png) | |
+
 | Selezione personaggi | Ufficio Anagrafe (identity) |
 |---|---|
 | ![personaggi](anteprime/personaggi.png) | ![anagrafe](anteprime/anagrafe.png) |
@@ -41,6 +45,8 @@ C.E.D ITA/
         ├── [aspetto]/        illenium-appearance (tema C.E.D ITA, in italiano)
         ├── [ced]/            ced_personaggi (selezione personaggi + anagrafe)
         │                     ced_forzeordine (Polizia / Carabinieri / ponte FivePD)
+        │                     ced_radio (radio interforze con l'oggetto Radio)
+        ├── [voce]/           pma-voice (voce di prossimità + radio)
         └── [fivepd]/         QUI metti FivePD
 ```
 
@@ -181,6 +187,30 @@ ESX.ShowNotification("Pattuglia", "carabinieri", 5000, "Centrale Operativa")
 
 ---
 
+## Radio interforze
+
+Usa l'oggetto **Radio** dall'inventario (oppure `/radio` se ce l'hai addosso): si apre una radio portatile
+con display, tastierino e l'elenco dei canali a cui hai accesso.
+
+| Frequenza | Canale | Chi entra |
+|---|---|---|
+| 100.0 | Interforze - Coordinamento | tutte le Forze dell'Ordine + Vigili del Fuoco + 118 |
+| 100.1 | Interforze - Operazioni FdO | Forze dell'Ordine |
+| 113.0 / 113.1 / 113.2 | Polizia Di Stato - Sala Operativa / Volanti / Squadra Mobile | `polizia` |
+| 112.0 / 112.1 / 112.2 | Arma Dei Carabinieri - Centrale Operativa / Radiomobile / Stazione | `carabinieri` |
+| 117.0 | Guardia Di Finanza | `guardiadifinanza` |
+| 120.0 · 121.0 | Polizia Locale · Polizia Penitenziaria | `polizialocale` · `poliziapenitenziaria` |
+| 115.0 · 118.0 | Vigili Del Fuoco · Emergenza Sanitaria 118 | `vigilidelfuoco` · `ambulance` |
+| 200.0 - 999.9 | Frequenze libere (si digitano col tastierino) | chiunque abbia la radio |
+
+- Per parlare tieni premuto **ALT SINISTRO** (si cambia in Impostazioni → Tasti → FiveM → "Talk over Radio").
+- Tutto tra 100.0 e 199.9 è riservato: il **server** controlla lavoro e radio, non si può forzare.
+- Se perdi/dai via la radio si spegne; se cambi lavoro vieni tolto dai canali non più tuoi.
+- I job che non esistono ancora (Guardia di Finanza, 118...) sono già pronti: basta crearli.
+- Canali, colori e regole (es. solo in servizio) in `resources/[ced]/ced_radio/config.lua`.
+
+---
+
 ## Personaggi e aspetto
 
 - All'ingresso si apre la **selezione personaggi** C.E.D ITA: scegli un cittadino e premi *Entra in città*.
@@ -217,5 +247,6 @@ ESX.ShowNotification("Pattuglia", "carabinieri", 5000, "Centrale Operativa")
 - [oxmysql](https://github.com/overextended/oxmysql), [ox_lib](https://github.com/overextended/ox_lib), [ox_inventory](https://github.com/overextended/ox_inventory) – LGPL-3.0 / GPL-3.0, [cfxlua-require](https://github.com/overextended/cfxlua-require) – MPL-2.0
 - spawnmanager – [cfx-server-data](https://github.com/citizenfx/cfx-server-data)
 - [illenium-appearance](https://github.com/iLLeniumStudios/illenium-appearance) – MIT
+- [pma-voice](https://github.com/AvarianKnight/pma-voice) – MIT
 - FivePD – da scaricare dal sito ufficiale (non incluso)
 - Notifiche, tema inventario, `ced_personaggi` e `ced_forzeordine`: C.E.D ITA

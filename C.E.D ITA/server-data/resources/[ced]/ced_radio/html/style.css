@@ -1,0 +1,253 @@
+/* C.E.D ITA - radio */
+
+:root {
+	--bg: rgba(9, 13, 24, 0.88);
+	--bg-2: rgba(18, 25, 42, 0.82);
+	--bordo: rgba(148, 178, 255, 0.12);
+	--testo: #eef2fb;
+	--testo-2: rgba(214, 224, 246, 0.66);
+	--blu: #3b82f6;
+	--lcd: #b6f3c8;
+	--lcd-scuro: #1c3326;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+	background: transparent;
+	color: var(--testo);
+	font-family: "Inter", "Segoe UI", sans-serif;
+	-webkit-font-smoothing: antialiased;
+	user-select: none;
+}
+
+.nascosto { display: none !important; }
+
+.contenitore {
+	position: fixed;
+	right: 2.5vw;
+	bottom: 4vh;
+	display: flex;
+	align-items: flex-end;
+	gap: 18px;
+	animation: entra 420ms cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+/* ---------------- pannello canali ---------------- */
+
+.pannello {
+	width: 330px;
+	max-height: 78vh;
+	padding: 18px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	border-radius: 16px;
+	background: linear-gradient(180deg, var(--bg-2), var(--bg));
+	border: 1px solid var(--bordo);
+	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+	animation: entra 420ms 80ms cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+.pannello-testa { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+.pannello-testa b { display: block; font-family: "Rajdhani", sans-serif; font-size: 19px; letter-spacing: 0.04em; }
+.pannello-testa span { display: block; font-size: 11px; letter-spacing: 0.16em; color: var(--testo-2); }
+
+.bandiera { display: flex; flex-direction: column; width: 7px; height: 34px; border-radius: 3px; overflow: hidden; }
+.bandiera i { flex: 1; }
+.bandiera i:nth-child(1) { background: #009246; }
+.bandiera i:nth-child(2) { background: #f1f2f1; }
+.bandiera i:nth-child(3) { background: #ce2b37; }
+
+.pannello h3 {
+	margin-top: 4px;
+	font-family: "Rajdhani", sans-serif;
+	font-size: 14px;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--testo-2);
+}
+
+.lista-canali, .lista-membri { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
+.lista-canali { max-height: 34vh; }
+.lista-membri { max-height: 16vh; }
+.lista-canali::-webkit-scrollbar, .lista-membri::-webkit-scrollbar { width: 0; }
+
+.canale {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 9px 11px;
+	border-radius: 11px;
+	background: rgba(255, 255, 255, 0.035);
+	border: 1px solid transparent;
+	cursor: pointer;
+	transition: background 130ms ease, border-color 130ms ease, transform 130ms ease;
+}
+.canale:hover { background: rgba(255, 255, 255, 0.07); transform: translateX(-3px); }
+.canale.attivo { border-color: var(--colore, var(--blu)); background: rgba(59, 130, 246, 0.14); }
+.canale .tag {
+	flex: 0 0 auto;
+	min-width: 44px;
+	padding: 3px 6px;
+	border-radius: 6px;
+	text-align: center;
+	font-family: "Rajdhani", sans-serif;
+	font-weight: 700;
+	font-size: 13px;
+	color: #0b1020;
+	background: var(--colore, var(--blu));
+}
+.canale .testo { min-width: 0; flex: 1; }
+.canale .testo b { display: block; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.canale .testo span { display: block; font-family: "Share Tech Mono", monospace; font-size: 12px; color: var(--testo-2); }
+.canale .presenti { font-size: 11px; color: var(--testo-2); }
+
+.vuoto { font-size: 12.5px; color: var(--testo-2); padding: 4px 2px; }
+
+.membro { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 5px 8px; border-radius: 8px; background: rgba(255, 255, 255, 0.03); }
+.membro .sigla-membro { font-family: "Rajdhani", sans-serif; font-weight: 700; font-size: 12px; color: #93c5fd; min-width: 34px; }
+
+.aiuto { margin-top: 4px; font-size: 11.5px; line-height: 1.5; color: var(--testo-2); }
+kbd { padding: 1px 6px; border-radius: 5px; background: rgba(255, 255, 255, 0.1); font-family: inherit; font-size: 11px; color: var(--testo); }
+
+/* ---------------- apparecchio ---------------- */
+
+.apparecchio { position: relative; width: 250px; padding-top: 70px; }
+
+.antenna {
+	position: absolute;
+	top: 0;
+	left: 34px;
+	width: 22px;
+	height: 92px;
+	border-radius: 11px 11px 4px 4px;
+	background: linear-gradient(90deg, #111, #2d2f36 45%, #111);
+	box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.08);
+}
+.manopola {
+	position: absolute;
+	top: 46px;
+	right: 44px;
+	width: 34px;
+	height: 34px;
+	border-radius: 8px;
+	background: repeating-linear-gradient(90deg, #1a1b20 0 3px, #2b2d34 3px 6px);
+	box-shadow: 0 2px 0 rgba(255, 255, 255, 0.06) inset;
+}
+
+.corpo {
+	position: relative;
+	padding: 18px 18px 14px;
+	border-radius: 26px 26px 34px 34px;
+	background: linear-gradient(160deg, #2a2d35 0%, #17191f 55%, #0f1014 100%);
+	border: 1px solid rgba(255, 255, 255, 0.06);
+	box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.griglia-altoparlante {
+	height: 40px;
+	margin: 0 14px 14px;
+	border-radius: 10px;
+	background:
+		radial-gradient(circle, #050608 1.6px, transparent 2px) 0 0 / 9px 9px,
+		linear-gradient(180deg, #1c1e24, #14151a);
+	box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+/* display LCD */
+.display {
+	padding: 10px 12px;
+	border-radius: 10px;
+	background: linear-gradient(180deg, #a8e6b8, #8fd6a3);
+	color: var(--lcd-scuro);
+	box-shadow: inset 0 0 18px rgba(0, 40, 10, 0.35), 0 0 0 3px #0a0b0e;
+	font-family: "Share Tech Mono", monospace;
+	transition: background 300ms ease, color 300ms ease;
+}
+.display.spento { background: #26302a; color: rgba(150, 190, 160, 0.18); box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.6), 0 0 0 3px #0a0b0e; }
+
+.display-riga { display: flex; justify-content: space-between; align-items: center; height: 14px; }
+.segnale { display: flex; align-items: flex-end; gap: 2px; height: 12px; }
+.segnale i { width: 3px; background: currentColor; }
+.segnale i:nth-child(1) { height: 4px; }
+.segnale i:nth-child(2) { height: 7px; }
+.segnale i:nth-child(3) { height: 10px; }
+.segnale i:nth-child(4) { height: 12px; }
+.tx { padding: 0 5px; border-radius: 3px; font-size: 11px; opacity: 0.15; }
+.tx.attivo { opacity: 1; background: #b91c1c; color: #fee2e2; animation: lampeggia 700ms steps(2) infinite; }
+.batteria { width: 20px; height: 10px; border: 1.5px solid currentColor; border-radius: 2px; padding: 1px; position: relative; }
+.batteria::after { content: ""; position: absolute; right: -4px; top: 2px; width: 2px; height: 4px; background: currentColor; }
+.batteria i { display: block; width: 80%; height: 100%; background: currentColor; }
+
+.frequenza { display: flex; align-items: baseline; justify-content: center; gap: 6px; margin: 4px 0 2px; }
+.frequenza b { font-size: 40px; font-weight: 400; letter-spacing: 0.04em; line-height: 1; }
+.frequenza small { font-size: 13px; }
+.frequenza.inserimento b { animation: lampeggia 900ms steps(2) infinite; }
+
+.nome-canale { display: flex; align-items: center; justify-content: center; gap: 6px; height: 18px; font-size: 12px; white-space: nowrap; overflow: hidden; }
+.nome-canale .sigla { padding: 0 4px; border: 1px solid currentColor; border-radius: 3px; font-size: 11px; }
+.nome-canale .sigla:empty { display: none; }
+#nome-canale { overflow: hidden; text-overflow: ellipsis; }
+
+.volume-barra { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 10px; }
+.volume-barra div { flex: 1; height: 5px; border: 1px solid currentColor; border-radius: 2px; padding: 1px; }
+.volume-barra i { display: block; height: 100%; width: 40%; background: currentColor; transition: width 150ms ease; }
+
+/* tasti */
+.tasti-funzione, .tastierino { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+.tastierino { gap: 7px; }
+
+button {
+	height: 38px;
+	border: none;
+	border-radius: 10px;
+	background: linear-gradient(180deg, #3a3d46, #24262d);
+	color: #e5e7eb;
+	font-family: "Rajdhani", sans-serif;
+	font-weight: 700;
+	font-size: 15px;
+	letter-spacing: 0.04em;
+	cursor: pointer;
+	box-shadow: 0 3px 0 #0b0c0f, inset 0 1px 0 rgba(255, 255, 255, 0.08);
+	transition: transform 80ms ease, box-shadow 80ms ease, filter 120ms ease;
+}
+button:hover { filter: brightness(1.15); }
+button:active { transform: translateY(2px); box-shadow: 0 1px 0 #0b0c0f, inset 0 1px 0 rgba(255, 255, 255, 0.08); }
+.tastierino button { height: 34px; font-size: 17px; }
+button.accensione { background: linear-gradient(180deg, #b91c1c, #7f1d1d); font-size: 18px; }
+button.accensione.acceso { background: linear-gradient(180deg, #16a34a, #166534); }
+button.chiudi { background: linear-gradient(180deg, #2c2f37, #1b1d22); color: #9ca3af; }
+button.invio { background: linear-gradient(180deg, #2563eb, #1e40af); }
+button.secondario { color: #fca5a5; }
+.corpo.disattivato .tastierino button, .corpo.disattivato [data-azione="su"], .corpo.disattivato [data-azione="giu"] { opacity: 0.45; pointer-events: none; }
+
+.marchio { margin-top: 12px; text-align: center; font-family: "Rajdhani", sans-serif; font-size: 11px; letter-spacing: 0.3em; color: rgba(255, 255, 255, 0.28); }
+
+/* ---------------- indicatore piccolo ---------------- */
+
+.mini {
+	position: fixed;
+	right: 2vw;
+	bottom: 3vh;
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	padding: 8px 14px;
+	border-radius: 99px;
+	background: var(--bg);
+	border: 1px solid var(--bordo);
+	box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+	font-size: 12.5px;
+	color: var(--testo-2);
+	animation: entra 300ms ease both;
+}
+.mini b { font-family: "Share Tech Mono", monospace; font-size: 15px; color: var(--testo); }
+.mini .punto { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+.mini.trasmette .punto { background: #ef4444; box-shadow: 0 0 10px #ef4444; animation: lampeggia 700ms steps(2) infinite; }
+
+@keyframes entra { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
+@keyframes lampeggia { 50% { opacity: 0.35; } }
