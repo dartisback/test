@@ -150,7 +150,7 @@ Per rendere l'admin permanente puoi anche aggiungere il tuo identificativo in `s
 | **F2** / **TAB** | Inventario / barra rapida |
 
 Punti di servizio con marker (tasto **E**):
-- **Questura – Polizia Di Stato**: Mission Row
+- **Questura Di Roma – Polizia Di Stato**: alle coordinate 248.32, -344.58 (con stemma 3D all'ingresso)
 - **Caserma – Arma Dei Carabinieri**: Sandy Shores
 
 ---

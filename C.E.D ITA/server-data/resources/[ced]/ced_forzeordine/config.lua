@@ -25,13 +25,21 @@ Config.Dipartimenti = {
         notifica = 'polizia',            -- tipo di notifica esx_notify
         gruppoAce = 'group.polizia',     -- vedi server-data/permessi.cfg
         blip = {
-            coords = vector3(428.2, -981.0, 30.7),
+            coords = vector3(248.3219, -344.5826, 44.2116),
             sprite = 60,
             colore = 3,
             scala = 0.9,
-            nome = 'Questura - Polizia Di Stato',
+            nome = 'Questura Di Roma',
         },
-        puntoServizio = vector3(441.3, -981.9, 30.69),
+        puntoServizio = vector3(248.3219, -344.5826, 44.2116),
+        -- stemma 3D sopra l'ingresso (immagine in immagini/polizia_di_stato.png)
+        insegna = {
+            immagine = 'polizia_di_stato',
+            coords = vector3(248.3219, -344.5826, 44.2116),
+            altezza = 2.6,        -- metri sopra il punto
+            testo = 'Questura Di Roma',
+            distanza = 35.0,      -- da quanto lontano si vede
+        },
         marker = { r = 30, g = 110, b = 255 },
     },
 

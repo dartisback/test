@@ -62,3 +62,49 @@ CreateThread(function()
         Wait(attesa)
     end
 end)
+
+-- Insegne 3D (stemma + scritta) sopra le sedi che hanno "insegna" nel config
+CreateThread(function()
+    local insegne = {}
+    local txd = CreateRuntimeTxd('ced_forzeordine')
+
+    for _, dip in pairs(Dipartimenti) do
+        local i = dip.insegna
+        if i then
+            CreateRuntimeTextureFromImage(txd, i.immagine, ('immagini/%s.png'):format(i.immagine))
+            insegne[#insegne + 1] = i
+        end
+    end
+    if #insegne == 0 then return end
+
+    while true do
+        local attesa = 1000
+        local mio = GetEntityCoords(PlayerPedId())
+
+        for _, i in ipairs(insegne) do
+            local distanza = #(mio - i.coords)
+            if distanza < i.distanza then
+                attesa = 0
+                -- piu' sei vicino piu' e' grande, e sfuma da lontano
+                local scala = math.min(1.0, 6.0 / math.max(distanza, 1.0))
+                local alfa = math.floor(255 * math.min(1.0, (i.distanza - distanza) / 8.0))
+                local larghezza, altezza = 0.07 * scala, 0.07 * scala * (320 / 256) * GetAspectRatio(false)
+
+                SetDrawOrigin(i.coords.x, i.coords.y, i.coords.z + i.altezza, 0)
+                DrawSprite('ced_forzeordine', i.immagine, 0.0, 0.0, larghezza, altezza, 0.0, 255, 255, 255, alfa)
+
+                SetTextFont(4)
+                SetTextScale(0.0, 0.5 * scala + 0.15)
+                SetTextColour(255, 255, 255, alfa)
+                SetTextOutline()
+                SetTextCentre(true)
+                BeginTextCommandDisplayText('STRING')
+                AddTextComponentSubstringPlayerName(i.testo)
+                EndTextCommandDisplayText(0.0, altezza / 2 + 0.005)
+                ClearDrawOrigin()
+            end
+        end
+
+        Wait(attesa)
+    end
+end)

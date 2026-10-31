@@ -20,6 +20,10 @@ server_scripts {
 
 client_script 'client.lua'
 
+files {
+    'immagini/*.png',
+}
+
 dependencies {
     'oxmysql',
     'es_extended',
